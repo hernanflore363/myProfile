@@ -1,0 +1,24 @@
+/* You can add global styles to this file, and also import other style files */
+
+@import 'tailwindcss';
+
+body {
+  background: radial-gradient(circle at top, #1a1a2e, #0f0f1a);
+  color: white;
+  font-family: 'Inter', sans-serif;
+}
+
+.group:hover .orbit {
+  animation-play-state: paused;
+}
+
+.fade-in {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: all 0.8s ease;
+}
+
+.fade-in.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
