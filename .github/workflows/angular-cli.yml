@@ -37,7 +37,7 @@ jobs:
 
 
       - name: Build Angular
-        run: npm run build -- --base-href "/myProfile/"
+        run: npm run build -- --base-href "/myapp/"
 
 
       - name: Upload artifact
