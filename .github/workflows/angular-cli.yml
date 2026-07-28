@@ -1,4 +1,4 @@
-name: myApp Angular CI/CD
+name: my-App Angular CI/CD
 
 on:
 
@@ -41,11 +41,11 @@ jobs:
 
 
       - name: Rename index for GitHub Pages routing
-        run: mv dist/myapp/browser/index.html dist/myapp/browser/404.html
+        run: mv dist/my-app/browser/index.html dist/my-app/browser/404.html
 
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: dist/myapp/browser
+          folder: dist/my-app/browser
           branch: gh-pages
