@@ -1,15 +1,16 @@
-name: Deploy Angular to GitHub Pages
+name: myApp Angular CI/CD
 
 on:
+
   push:
     branches:
       - main
 
+  pull_request:
+    branches:
+      - main
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+  workflow_dispatch:
 
 
 jobs:
@@ -29,38 +30,22 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
 
-      - name: Build Angular
-        run: npm run build -- --base-href "/myapp/"
+      - name: Build Angular production
+        run: npm run build:prod
 
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./dist/myapp/browser
+      - name: Rename index for GitHub Pages routing
+        run: mv dist/myapp/browser/index.html dist/myapp/browser/404.html
 
-
-
-  deploy:
-
-    needs: build
-
-    runs-on: ubuntu-latest
-
-
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-
-
-    steps:
 
       - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: dist/myapp/browser
+          branch: gh-pages
