@@ -1,0 +1,418 @@
+<div class="min-h-screen bg-[#0d1117] text-gray-200 font-mono">
+
+  <!-- TOP BAR (VS CODE STYLE) -->
+
+  <div class="bg-[#161b22] px-6 py-3 border-b border-gray-700 flex items-center gap-2">
+    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+    <span class="ml-4 text-sm text-gray-400">kubernetes-architecture.component.html</span>
+  </div>
+
+  <div class="p-10 max-w-7xl mx-auto">
+
+```
+<!-- HEADER -->
+<section class="mb-16">
+  <h1 class="text-4xl font-bold text-blue-400 mb-4">
+    Kubernetes Architecture – Production Guide
+  </h1>
+  <p class="text-gray-400 text-lg">
+    End-to-end explanation of Kubernetes core components with real-world usage and architecture patterns.
+  </p>
+</section>
+
+<!-- GRID COMPONENTS -->
+<section class="grid md:grid-cols-2 gap-10">
+
+  <!-- POD -->
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+    <h2 class="text-xl text-cyan-400 font-semibold mb-2">Pod</h2>
+
+    
+
+
+
+    <p class="text-gray-400 mb-4">
+      Es la unidad más pequeña que Kubernetes puede desplegar. Contiene uno o varios contenedores que comparten red, almacenamiento y ciclo de vida.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">
+apiVersion: v1                  # Versión del API de Kubernetes
+kind: Pod                       # Tipo de recurso (ejecuta uno o varios containers)
+metadata:
+  name: backend-pod             # Nombre único del Pod
+  labels:
+    app: backend                # Etiqueta usada para identificar el Pod
+    version: v1                 # Versión de la aplicación
+
+spec:
+  containers:
+    - name: backend-container   # Nombre del contenedor dentro del Pod
+      image: my-api:v1          # Imagen Docker que será ejecutada
+      ports:
+        - containerPort: 8080   # Puerto donde escucha la aplicación
+      env:
+        - name: ENVIRONMENT     # Variable de configuración
+          value: production
+      resources:
+        requests:
+          cpu: "250m"           # CPU mínima reservada
+          memory: "256Mi"       # Memoria mínima reservada
+        limits:
+          cpu: "500m"           # Máximo CPU permitido
+          memory: "512Mi"       # Máxima memoria permitida
+      livenessProbe:            # Verifica si la aplicación sigue viva
+        httpGet:
+          path: /health
+          port: 8080
+      volumeMounts:
+        - name: app-storage     # Nombre del volumen utilizado
+          mountPath: /app/data  # Ruta donde se monta dentro del container
+  volumes:
+    - name: app-storage         # Definición del volumen
+      emptyDir:  &#123;&#125;   # Almacenamiento temporal mientras viva el Pod
+  restartPolicy: Always          # Reinicia el container si falla
+</code></pre>
+
+```
+    <span class="text-xs text-gray-500">Use: debugging, simple workloads</span>
+  </div>
+
+  <!-- DEPLOYMENT -->
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+    <h2 class="text-xl text-green-400 font-semibold mb-2">Deployment</h2>
+
+    <p class="text-gray-400 mb-4">
+      Controla la creación y administración de Pods, permitiendo escalamiento, actualización de versiones y recuperación automática ante fallos.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">
+apiVersion: apps/v1        # Versión del API de Kubernetes
+kind: Deployment           # Tipo de recurso (gestiona pods)
+metadata:
+  name: backend-app        # Nombre del deployment
+spec:
+  replicas: 3              # Número de pods (escala horizontal)
+  selector:
+    matchLabels:
+      app: backend         # Debe coincidir con labels del template
+  template:
+    metadata:
+      labels:
+        app: backend       # Label que usa el Service para encontrar pods
+        
+    spec:
+      containers:
+        - name: backend-container   # Nombre del contenedor
+          image: my-api:v1          # Imagen Docker
+          ports:
+            - containerPort: 8080   # Puerto interno del contenedor
+          env:
+            - name: ENV             # Variable de entorno
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config  # ConfigMap
+                  key: ENV
+          resources:
+            limits:
+              cpu: "500m"           # Límite CPU
+              memory: "512Mi"       # Límite RAM
+            requests:
+              cpu: "250m"           # Garantizado CPU
+              memory: "256Mi"       # Garantizado RAM
+          volumeMounts:
+            - name: storage
+              mountPath: /data      # Ruta dentro del contenedor
+      volumes:
+        - name: storage
+          persistentVolumeClaim:
+            claimName: my-disk      # Disco persistente
+</code></pre>
+
+```
+    <span class="text-xs text-gray-500">Use: stateless apps</span>
+  </div>
+
+  <!-- SERVICE -->
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+    <h2 class="text-xl text-yellow-400 font-semibold mb-2">Service</h2>
+
+    
+
+
+
+    <p class="text-gray-400 mb-4">
+      Stable network endpoint for Pods (load balancing).
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">
+apiVersion: v1                    # Versión del API de Kubernetes
+kind: Service                     # Tipo de recurso (expone y comunica Pods)
+metadata:
+  name: backend-service           # Nombre del Service
+  labels:
+    app: backend                  # Etiqueta del Service
+
+spec:
+  type: ClusterIP                 # Tipo de Service (acceso interno dentro del cluster)
+  selector:
+    app: backend                  # Debe coincidir con labels de los Pods
+  ports:
+    - name: http                  # Nombre del puerto
+      protocol: TCP               # Protocolo de comunicación
+      port: 80                    # Puerto expuesto por el Service
+      targetPort: 8080            # Puerto donde escucha el container
+  sessionAffinity: None           # No mantiene la misma sesión con un Pod específico
+</code></pre>
+
+```
+    <span class="text-xs text-gray-500">Use: internal communication</span>
+  </div>
+
+  <!-- INGRESS -->
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+    <h2 class="text-xl text-purple-400 font-semibold mb-2">Ingress</h2>
+
+    
+
+
+
+    <p class="text-gray-400 mb-4">
+      HTTP/HTTPS routing from external traffic.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">
+apiVersion: networking.k8s.io/v1        # Versión del API de Kubernetes
+kind: Ingress                           # Tipo de recurso (gestiona entrada HTTP/HTTPS)
+metadata:
+  name: backend-ingress                 # Nombre del Ingress
+  annotations:
+    kubernetes.io/ingress.class: nginx  # Controlador que procesa el Ingress
+    konghq.com/plugins: keycloak-auth  # Plugin API Gateway para autenticación Keycloak
+
+spec:
+  tls:
+    - hosts:
+        - api.midominio.com             # Dominio externo con HTTPS
+      secretName: tls-secret            # Certificado SSL almacenado como Secret
+  rules:
+    - host: api.midominio.com           # Dominio que recibirá las peticiones externas
+      http:
+        paths:
+          - path: /api                  # Ruta pública expuesta
+            pathType: Prefix            # Coincidencia por prefijo de URL
+            backend:
+              service:
+                name: backend-service   # Service interno de Kubernetes
+                port:
+                  number: 80            # Puerto donde escucha el Service
+</code></pre>
+
+```
+    <span class="text-xs text-gray-500">Use: expose apps</span>
+  </div>
+
+  <!-- CONFIGMAP -->
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+    <h2 class="text-xl text-cyan-300 font-semibold mb-2">ConfigMap</h2>
+
+    
+
+
+
+    <p class="text-gray-400 mb-4">
+      Non-sensitive configuration management.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">
+apiVersion: v1                    # Versión del API de Kubernetes
+kind: ConfigMap                   # Tipo de recurso (almacena configuración no sensible)
+metadata:
+  name: backend-config            # Nombre del ConfigMap
+  labels:
+    app: backend                  # Identifica a qué aplicación pertenece
+data:
+  ENV: production                 # Ambiente de ejecución de la aplicación
+  API_URL: http://backend-api     # URL del servicio interno utilizado por la aplicación
+  LOG_LEVEL: INFO                 # Nivel de detalle de los logs
+  TIMEZONE: America/La_Paz        # Zona horaria utilizada por la aplicación
+</code></pre>
+
+```
+    <span class="text-xs text-gray-500">Use: configs</span>
+  </div>
+
+  <!-- SECRET -->
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+    <h2 class="text-xl text-red-400 font-semibold mb-2">Secret</h2>
+
+    
+
+
+
+    <p class="text-gray-400 mb-4">
+      Secure storage for sensitive data.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">
+apiVersion: v1                    # Versión del API de Kubernetes
+kind: Secret                       # Tipo de recurso (almacena información sensible)
+metadata:
+  name: backend-secret             # Nombre del Secret
+  labels:
+    app: backend                   # Identifica a qué aplicación pertenece
+type: Opaque                       # Tipo genérico para almacenar datos sensibles
+data:
+  PASSWORD: cGFzc3dvcmQ=           # Contraseña codificada en Base64
+  USERNAME: YWRtaW4=               # Usuario codificado en Base64
+  API_KEY: YWJjMTIz                # Token o clave API codificada en Base64
+</code></pre>
+
+```
+    <span class="text-xs text-gray-500">Use: credentials</span>
+  </div>
+
+  <!-- VOLUME -->
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+    <h2 class="text-xl text-orange-400 font-semibold mb-2">Volume</h2>
+
+    
+
+
+
+    <p class="text-gray-400 mb-4">
+      Persistent storage independent from Pod lifecycle.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">
+apiVersion: v1                    # Versión del API de Kubernetes
+kind: Pod                         # Recurso donde se utiliza el volumen
+metadata:
+  name: backend-pod               # Nombre del Pod
+
+spec:
+  containers:
+    - name: backend-container     # Nombre del contenedor
+      image: my-api:v1            # Imagen Docker de la aplicación
+      volumeMounts:
+        - name: storage           # Nombre del volumen que será montado
+          mountPath: /app/data    # Ruta dentro del container donde estará disponible
+  volumes:
+    - name: storage               # Nombre del volumen dentro del Pod
+      persistentVolumeClaim:
+        claimName: disk           # Nombre del PersistentVolumeClaim existente
+</code></pre>
+
+```
+    <span class="text-xs text-gray-500">Use: data persistence</span>
+  </div>
+
+  <!-- STATEFULSET -->
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+    <h2 class="text-xl text-pink-400 font-semibold mb-2">StatefulSet</h2>
+
+    
+
+
+
+    <p class="text-gray-400 mb-4">
+      For stateful workloads with identity and persistence.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">
+apiVersion: apps/v1              # Versión del API de Kubernetes
+kind: StatefulSet                 # Tipo de recurso (gestiona aplicaciones con estado)
+metadata:
+  name: database-stateful         # Nombre del StatefulSet
+spec:
+  serviceName: db                 # Service asociado para comunicación estable
+  replicas: 1                     # Número de Pods con identidad propia
+  selector:
+    matchLabels:
+      app: database               # Debe coincidir con los labels de los Pods
+  template:
+    metadata:
+      labels:
+        app: database             # Label utilizado para identificar los Pods
+
+    spec:
+      containers:
+        - name: database-container    # Nombre del contenedor
+          image: postgres:16           # Imagen de la base de datos
+          ports:
+            - containerPort: 5432      # Puerto donde escucha la base de datos
+          volumeMounts:
+            - name: database-storage   # Volumen asociado al contenedor
+              mountPath: /var/lib/postgresql/data   # Ruta donde se almacenan los datos
+  volumeClaimTemplates:
+    - metadata:
+        name: database-storage          # Nombre del volumen persiste
+      spec:
+        accessMo
+          - ReadWriteOnce               # Un nodo puede escribir al volumen
+        resources:
+          requests:
+            storage: 10Gi               # Tamaño solicitado del almacenamiento
+</code></pre>
+
+```
+    <span class="text-xs text-gray-500">Use: databases, Kafka</span>
+  </div>
+
+</section>
+
+<!-- ARCHITECTURE FLOW -->
+<section class="mt-20">
+  <h2 class="text-2xl text-white font-bold mb-6">Production Architecture Flow</h2>
+
+  
+
+
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+    <ul class="list-disc ml-6 space-y-2 text-gray-300">
+      <li>Internet → Ingress Controller</li>
+      <li>Ingress → Service (Routing)</li>
+      <li>Service → Deployment (Pods)</li>
+      <li>Pods → ConfigMap / Secret</li>
+      <li>Pods → StatefulSet (Database)</li>
+      <li>StatefulSet → Persistent Volume</li>
+    </ul>
+  </div>
+</section>
+
+<!-- BEST PRACTICES -->
+<section class="mt-16">
+  <h2 class="text-2xl text-green-400 font-bold mb-4">Best Practices</h2>
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6 text-gray-300">
+    <ul class="space-y-2">
+      <li>✔ Use Deployment for stateless services</li>
+      <li>✔ Use StatefulSet for databases</li>
+      <li>✔ Never store secrets in ConfigMap</li>
+      <li>✔ Always use resource limits</li>
+      <li>✔ Use Ingress instead of NodePort</li>
+    </ul>
+  </div>
+</section>
+```
+
+  </div>
+</div>
