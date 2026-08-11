@@ -1,0 +1,443 @@
+<div class="min-h-screen bg-[#0d1117] text-gray-200 font-mono">
+
+    <!-- TOP BAR -->
+
+    <div class="bg-[#161b22] px-6 py-3 border-b border-gray-700 flex items-center gap-2">
+
+        <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+        <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+        <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+
+        <span class="ml-4 text-sm text-gray-400">
+            kafka-event-driven.component.html
+        </span>
+
+    </div>
+
+
+    <div class="p-10 max-w-7xl mx-auto">
+
+        <!-- HEADER -->
+
+        <section class="mb-16">
+
+            <h1 class="text-4xl font-bold text-orange-400 mb-4">
+                Apache Kafka – Event-Driven Architecture
+            </h1>
+
+            <p class="text-gray-400 text-lg">
+                Guía práctica de Apache Kafka para diseñar arquitecturas
+                distribuidas, desacopladas, resilientes y orientadas a eventos.
+            </p>
+
+        </section>
+
+
+        <!-- COMPONENTS -->
+
+        <section class="grid md:grid-cols-2 gap-10">
+
+
+            <!-- KAFKA CLUSTER -->
+
+            <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+                <h2 class="text-xl text-orange-400 font-semibold mb-2">
+                    Kafka Cluster
+                </h2>
+
+                <p class="text-gray-400 mb-4">
+                    Conjunto de brokers que almacenan y distribuyen eventos.
+                    Permite escalabilidad horizontal, tolerancia a fallos y
+                    alta disponibilidad.
+                </p>
+
+                <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+                    <code class="block whitespace-pre">
+                    Kafka Cluster
+
+                    ┌──────────────┐
+                    │   Broker 1   │
+                    ├──────────────┤
+                    │   Broker 2   │
+                    ├──────────────┤
+                    │   Broker 3   │
+                    └──────────────┘
+                    </code>
+                </pre>
+
+                <span class="text-xs text-gray-500">
+                    Use: alta disponibilidad y escalabilidad
+                </span>
+
+            </div>
+
+
+            <!-- TOPIC -->
+
+            <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+                <h2 class="text-xl text-cyan-400 font-semibold mb-2">
+                    Topic
+                </h2>
+
+                <p class="text-gray-400 mb-4">
+                    Canal lógico donde se publican eventos. Los servicios
+                    productores escriben eventos y los consumidores los procesan.
+                </p>
+
+                <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+                    <code class="block whitespace-pre">
+                    payment.completed
+
+                    payment.created
+                    payment.completed
+                    payment.failed
+                    </code>
+                </pre>
+
+                <span class="text-xs text-gray-500">
+                    Use: comunicación basada en eventos
+                </span>
+
+            </div>
+
+
+            <!-- PRODUCER -->
+
+            <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+                <h2 class="text-xl text-green-400 font-semibold mb-2">
+                    Producer
+                </h2>
+
+                <p class="text-gray-400 mb-4">
+                    Aplicación responsable de publicar eventos en uno o varios
+                    topics de Kafka.
+                </p>
+
+                <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+                    <code class="block whitespace-pre">
+                    const event = &#123;
+                    eventId: "evt-123",
+                    type: "payment.completed",
+                    userId: "usr-100",
+                    amount: 250,
+                    currency: "BOB"
+                    &#125;;
+
+                    producer.send(&#123;
+                    topic: "payment.completed",
+                    key: "usr-100",
+                    value: JSON.stringify(event)
+                    &#125;);
+                    </code>
+                </pre>
+
+                <span class="text-xs text-gray-500">
+                    Use: publicar eventos de negocio
+                </span>
+
+            </div>
+
+
+            <!-- CONSUMER -->
+
+            <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+                <h2 class="text-xl text-blue-400 font-semibold mb-2">
+                    Consumer
+                </h2>
+
+                <p class="text-gray-400 mb-4">
+                    Servicio que consume y procesa eventos publicados en Kafka.
+                    Puede existir más de un consumidor para el mismo topic.
+                </p>
+
+                <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+                    <code class="block whitespace-pre">
+                    consumer.subscribe(&#123;
+                    topic: "payment.completed"
+                    &#125;);
+
+                    consumer.run( 
+                    eachMessage: async (&#123; message &#125;) => &#123;
+
+                        const event =
+                        JSON.parse(message.value);
+
+                        await processPayment(event);
+                    &#125;
+                    );
+                    </code>
+                </pre>
+
+                <span class="text-xs text-gray-500">
+                    Use: procesamiento desacoplado
+                </span>
+
+            </div>
+
+
+            <!-- CONSUMER GROUP -->
+
+            <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+                <h2 class="text-xl text-purple-400 font-semibold mb-2">
+                    Consumer Group
+                </h2>
+
+                <p class="text-gray-400 mb-4">
+                    Agrupa consumidores para distribuir las particiones de un topic
+                    y procesar eventos de forma paralela.
+                </p>
+
+                <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+                    <code class="block whitespace-pre">
+                    Topic: payment.completed
+
+                    Partition 0 ──► Consumer 1
+                    Partition 1 ──► Consumer 2
+                    Partition 2 ──► Consumer 3
+
+                    Group: payments-service
+                    </code>
+                </pre>
+
+                <span class="text-xs text-gray-500">
+                    Use: procesamiento paralelo y escalabilidad
+                </span>
+
+            </div>
+
+
+            <!-- PARTITION -->
+
+            <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+                <h2 class="text-xl text-yellow-400 font-semibold mb-2">
+                    Partition
+                </h2>
+
+                <p class="text-gray-400 mb-4">
+                    División física de un topic que permite distribuir los eventos
+                    entre diferentes brokers y consumidores.
+                </p>
+
+                <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+                    <code class="block whitespace-pre">
+                    Topic: payments
+
+                    Partition 0
+                    Partition 1
+                    Partition 2
+                    Partition 3
+                    </code>
+                </pre>
+
+                <span class="text-xs text-gray-500">
+                    Use: paralelismo y escalabilidad horizontal
+                </span>
+
+            </div>
+
+
+            <!-- OFFSET -->
+
+            <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+                <h2 class="text-xl text-pink-400 font-semibold mb-2">
+                    Offset
+                </h2>
+
+                <p class="text-gray-400 mb-4">
+                    Identificador secuencial que permite conocer la posición de un
+                    consumidor dentro de una partición.
+                </p>
+
+                <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+                    <code class="block whitespace-pre">
+                    Partition 0
+
+                    Offset
+                    100
+                    101
+                    102
+                    103
+                        ▲
+                        │
+                    Consumer position
+                    </code>
+                </pre>
+
+                <span class="text-xs text-gray-500">
+                    Use: control de procesamiento y recuperación
+                </span>
+
+            </div>
+
+
+            <!-- REPLICATION -->
+
+            <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+                <h2 class="text-xl text-red-400 font-semibold mb-2">
+                    Replication
+                </h2>
+
+                <p class="text-gray-400 mb-4">
+                    Kafka replica las particiones entre brokers para evitar pérdida
+                    de información ante fallos de infraestructura.
+                </p>
+
+                <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+                    <code class="block whitespace-pre">
+                    Partition 0
+
+                    Leader
+                    Broker 1
+                    │
+                    ├── Replica → Broker 2
+                    │
+                    └── Replica → Broker 3
+                    </code>
+                </pre>
+
+                <span class="text-xs text-gray-500">
+                    Use: resiliencia y alta disponibilidad
+                </span>
+
+            </div>
+
+
+            <!-- SCHEMA REGISTRY -->
+
+            <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+                <h2 class="text-xl text-indigo-400 font-semibold mb-2">
+                    Schema Registry
+                </h2>
+
+                <p class="text-gray-400 mb-4">
+                    Gestiona contratos y versiones de los eventos, evitando
+                    incompatibilidades entre productores y consumidores.
+                </p>
+
+                <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+                    <code class="block whitespace-pre">
+                    payment.completed
+
+                    v1
+
+                    userId
+                    amount
+
+
+                    v2
+
+                    userId
+                    amount
+                    currency
+
+                    </code>
+                </pre>
+
+                <span class="text-xs text-gray-500">
+                    Use: gobierno y evolución de contratos
+                </span>
+
+            </div>
+
+
+            <!-- RETRY DLQ -->
+
+            <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+                <h2 class="text-xl text-red-400 font-semibold mb-2">
+                    Retry & Dead Letter Topic
+                </h2>
+
+                <p class="text-gray-400 mb-4">
+                    Permite manejar errores de procesamiento sin bloquear
+                    indefinidamente el flujo principal de eventos.
+                </p>
+
+                <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+                    <code class="block whitespace-pre">
+                    payment.completed
+                            │
+                            ▼
+                    Consumer
+                            │
+                        Error
+                            │
+                            ▼
+                    Retry Topic
+                            │
+                            ▼
+                        DLQ
+                    </code>
+                </pre>
+
+                <span class="text-xs text-gray-500">
+                    Use: resiliencia y manejo de errores
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- EVENT FLOW -->
+
+        <section class="mt-20">
+
+            <h2 class="text-2xl text-white font-bold mb-6">
+                Event-Driven Architecture Flow
+            </h2>
+
+            <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+                <ul class="list-disc ml-6 space-y-2 text-gray-300">
+
+                    <li>
+                        Payment Service → publica <b>payment.completed</b>
+                    </li>
+
+                    <li>
+                        Kafka → almacena y distribuye el evento
+                    </li>
+
+                    <li>
+                        Loyalty Service → consume el evento
+                    </li>
+
+                    <li>
+                        Notification Service → consume el evento
+                    </li>
+
+                    <li>
+                        Analytics Service → consume el evento
+                    </li>
+
+                    <li>
+                        Cada servicio procesa el evento de manera independiente
+                    </li>
+
+                </ul>
+
+            </div>
+
+        </section>
+
+
+        <!-- COMPLETE ARCHITECTURE -->
+
+
+        <!-- BEST PRACTICES -->
+
+        
+
+    </div>
+
+</div>

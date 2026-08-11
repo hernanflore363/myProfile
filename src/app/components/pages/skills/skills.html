@@ -2,15 +2,18 @@
   --
   <!-- backdrop -->
   @if (isOpen) {
-<div
+    <div
   class="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center z-50 overflow-y-auto"
 >
-  <div 
-    class="rounded-2xl shadow-xl w-6xl max-w-4xl p-6 text-white"
-  >
-    <h2 class="text-xl font-semibold mb-4">Modal transparente</h2>
+<div 
+class="rounded-2xl shadow-xl w-6xl max-w-4xl p-6 text-white"
+>
+<h2 class="text-xl font-semibold mb-4">Modal transparente</h2>
 
     <p class="mb-4">
+      @if (isSelect == "kafka") {
+        <app-kafka/>
+      }
       @if (isSelect == "docker") {
         <app-docker/>
       }
@@ -136,7 +139,7 @@
                   transition"></div>
 
       <div class="flex justify-center gap-5 mb-6 relative z-10">
-        <img src="./images/logos/apache-kafka.png" class="w-12 h-12 transition hover:scale-110">
+        <img src="./images/logos/apache-kafka.png" class="w-12 h-12 transition hover:scale-110"  (click)="open('kafka')">
         <img src="./images/logos/socket.io.png" class="w-12 h-12 transition hover:scale-110">
         <img src="./images/logos/redis.png" class="w-12 h-12 transition hover:scale-110">
         <img src="./images/logos/kong.png" class="w-12 h-12 transition hover:scale-110">

@@ -1,0 +1,482 @@
+<div class="min-h-screen bg-[#0d1117] text-gray-200 font-mono">
+
+  <!-- TOP BAR -->
+
+  <div
+    class="bg-[#161b22] px-6 py-3 border-b border-red-900/50
+           flex items-center gap-2"
+  >
+    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+
+    <span class="ml-4 text-sm text-gray-400">
+      redis-architecture.component.html
+    </span>
+  </div>
+
+
+  <div class="p-10 max-w-7xl mx-auto">
+
+    <!-- HEADER -->
+
+    <section class="mb-16">
+
+      <h1 class="text-4xl font-bold text-red-400 mb-4">
+        Redis – Architecture & Production Guide
+      </h1>
+
+      <p class="text-gray-400 text-lg">
+        Guía práctica de Redis para caching, sesiones, control de
+        concurrencia, idempotencia y comunicación de alta velocidad
+        en sistemas distribuidos.
+      </p>
+
+    </section>
+
+
+    <!-- COMPONENTS -->
+
+    <section class="grid md:grid-cols-2 gap-10">
+
+
+      <!-- CACHE -->
+
+      <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+        <h2 class="text-xl text-red-400 font-semibold mb-2">
+          Cache
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Redis permite almacenar temporalmente información en memoria,
+          reduciendo la latencia y evitando consultas repetitivas
+          contra bases de datos.
+        </p>
+
+        <pre
+          class="bg-[#0d1117] p-4 rounded text-red-300 text-xs
+                 overflow-x-auto text-left"
+        ><code class="block whitespace-pre">SET user:1001 "Hernán"
+GET user:1001
+
+EXPIRE user:1001 3600
+
+TTL user:1001</code></pre>
+
+        <span class="text-xs text-gray-500">
+          Use: caching y reducción de latencia
+        </span>
+
+      </div>
+
+
+      <!-- KEY VALUE -->
+
+      <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+        <h2 class="text-xl text-orange-400 font-semibold mb-2">
+          Key-Value
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Redis utiliza una estructura de almacenamiento basada en
+          claves y valores, permitiendo accesos extremadamente rápidos
+          para información frecuentemente utilizada.
+        </p>
+
+        <pre
+          class="bg-[#0d1117] p-4 rounded text-red-300 text-xs
+                 overflow-x-auto text-left"
+        ><code class="block whitespace-pre">SET payment:001 "PENDING"
+
+GET payment:001
+
+DEL payment:001</code></pre>
+
+        <span class="text-xs text-gray-500">
+          Use: datos temporales y consultas rápidas
+        </span>
+
+      </div>
+
+
+      <!-- TTL -->
+
+      <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+        <h2 class="text-xl text-yellow-400 font-semibold mb-2">
+          TTL
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Permite establecer un tiempo de expiración para las claves,
+          evitando acumulación innecesaria de información en memoria.
+        </p>
+
+        <pre
+          class="bg-[#0d1117] p-4 rounded text-red-300 text-xs
+                 overflow-x-auto text-left"
+        ><code class="block whitespace-pre">SET session:abc123 "user-1001"
+
+EXPIRE session:abc123 1800
+
+TTL session:abc123</code></pre>
+
+        <span class="text-xs text-gray-500">
+          Use: sesiones, tokens y cache temporal
+        </span>
+
+      </div>
+
+
+      <!-- HASH -->
+
+      <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+        <h2 class="text-xl text-pink-400 font-semibold mb-2">
+          Hash
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Los Hash permiten representar objetos y mantener múltiples
+          atributos asociados a una misma clave.
+        </p>
+
+        <pre
+          class="bg-[#0d1117] p-4 rounded text-red-300 text-xs
+                 overflow-x-auto text-left"
+        ><code class="block whitespace-pre">HSET user:1001 \
+  name "Hernán" \
+  role "architect"
+
+HGET user:1001 role
+
+HGETALL user:1001</code></pre>
+
+        <span class="text-xs text-gray-500">
+          Use: objetos y estructuras simples
+        </span>
+
+      </div>
+
+
+      <!-- PUB SUB -->
+
+      <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+        <h2 class="text-xl text-purple-400 font-semibold mb-2">
+          Pub/Sub
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Redis Pub/Sub permite publicar mensajes en canales y
+          distribuir eventos entre múltiples consumidores.
+        </p>
+
+        <pre
+          class="bg-[#0d1117] p-4 rounded text-red-300 text-xs
+                 overflow-x-auto text-left"
+        ><code class="block whitespace-pre">SUBSCRIBE payments
+
+PUBLISH payments "payment-created"</code></pre>
+
+        <span class="text-xs text-gray-500">
+          Use: notificaciones y comunicación en tiempo real
+        </span>
+
+      </div>
+
+
+      <!-- DISTRIBUTED LOCK -->
+
+      <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+        <h2 class="text-xl text-cyan-400 font-semibold mb-2">
+          Distributed Lock
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Redis puede utilizarse para implementar mecanismos de
+          exclusión distribuida y evitar que múltiples instancias
+          procesen simultáneamente una misma operación.
+        </p>
+
+        <pre
+          class="bg-[#0d1117] p-4 rounded text-red-300 text-xs
+                 overflow-x-auto text-left"
+        ><code class="block whitespace-pre">SET lock:payment:001 \
+  instance-01 \
+  NX \
+  EX 30
+
+DEL lock:payment:001</code></pre>
+
+        <span class="text-xs text-gray-500">
+          Use: concurrencia e idempotencia
+        </span>
+
+      </div>
+
+
+      <!-- RATE LIMITING -->
+
+      <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+        <h2 class="text-xl text-green-400 font-semibold mb-2">
+          Rate Limiting
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Redis permite implementar contadores distribuidos para
+          controlar la cantidad de solicitudes que un cliente puede
+          realizar durante una ventana de tiempo.
+        </p>
+
+        <pre
+          class="bg-[#0d1117] p-4 rounded text-red-300 text-xs
+                 overflow-x-auto text-left"
+        ><code class="block whitespace-pre">INCR rate:user:1001
+
+EXPIRE rate:user:1001 60
+
+GET rate:user:1001</code></pre>
+
+        <span class="text-xs text-gray-500">
+          Use: protección de APIs y control de tráfico
+        </span>
+
+      </div>
+
+
+      <!-- DATA STRUCTURES -->
+
+      <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+        <h2 class="text-xl text-indigo-400 font-semibold mb-2">
+          Data Structures
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Redis proporciona estructuras especializadas para diferentes
+          necesidades de arquitectura distribuida.
+        </p>
+
+        <pre
+          class="bg-[#0d1117] p-4 rounded text-red-300 text-xs
+                 overflow-x-auto text-left"
+        ><code class="block whitespace-pre">String
+Hash
+List
+Set
+Sorted Set
+Stream
+Bitmap
+HyperLogLog</code></pre>
+
+        <span class="text-xs text-gray-500">
+          Use: modelado de datos en memoria
+        </span>
+
+      </div>
+
+    </section>
+
+
+    <!-- ARCHITECTURE FLOW -->
+
+    <section class="mt-20">
+
+      <h2 class="text-2xl text-red-400 font-bold mb-6">
+        Redis Architecture Flow
+      </h2>
+
+      <div
+        class="bg-[#161b22] border border-red-900/50
+               rounded-xl p-6"
+      >
+
+        <ul class="list-disc ml-6 space-y-2 text-gray-300">
+
+          <li>
+            Client → API
+          </li>
+
+          <li>
+            API → Redis
+          </li>
+
+          <li>
+            Redis → Cache Hit
+          </li>
+
+          <li>
+            Cache Miss → Database
+          </li>
+
+          <li>
+            Database → Redis
+          </li>
+
+          <li>
+            Redis → API → Client
+          </li>
+
+        </ul>
+
+      </div>
+
+    </section>
+
+
+    <!-- PRODUCTION ARCHITECTURE -->
+
+    <section class="mt-16">
+
+      <h2 class="text-2xl text-orange-400 font-bold mb-6">
+        Production Architecture
+      </h2>
+
+      <div
+        class="bg-[#161b22] border border-red-900/50
+               rounded-xl p-6"
+      >
+
+        <pre
+          class="text-red-300 text-sm overflow-x-auto text-left"
+        ><code class="block whitespace-pre">
+                  ┌──────────────────┐
+                  │      Client      │
+                  └────────┬─────────┘
+                           │
+                           ▼
+                  ┌──────────────────┐
+                  │   API Gateway    │
+                  └────────┬─────────┘
+                           │
+                           ▼
+                  ┌──────────────────┐
+                  │   Microservice   │
+                  └───────┬───┬──────┘
+                          │   │
+                 Cache Hit│   │Cache Miss
+                          ▼   ▼
+                    ┌─────────────┐
+                    │    Redis    │
+                    └──────┬──────┘
+                           │
+                           ▼
+                    ┌─────────────┐
+                    │  Database   │
+                    └─────────────┘
+        </code></pre>
+
+      </div>
+
+    </section>
+
+
+    <!-- REDIS + KAFKA -->
+
+    <section class="mt-16">
+
+      <h2 class="text-2xl text-purple-400 font-bold mb-6">
+        Redis + Kafka
+      </h2>
+
+      <div
+        class="bg-[#161b22] border border-red-900/50
+               rounded-xl p-6 text-gray-300"
+      >
+
+        <ul class="space-y-3">
+
+          <li>
+            ✔ Kafka para eventos y comunicación asíncrona
+          </li>
+
+          <li>
+            ✔ Redis para cache y acceso rápido
+          </li>
+
+          <li>
+            ✔ Kafka mantiene el flujo de eventos
+          </li>
+
+          <li>
+            ✔ Redis reduce consultas repetitivas
+          </li>
+
+          <li>
+            ✔ Ambos permiten desacoplar servicios
+          </li>
+
+        </ul>
+
+      </div>
+
+    </section>
+
+
+    <!-- BEST PRACTICES -->
+
+    <section class="mt-16">
+
+      <h2 class="text-2xl text-green-400 font-bold mb-4">
+        Best Practices
+      </h2>
+
+      <div
+        class="bg-[#161b22] border border-red-900/50
+               rounded-xl p-6 text-gray-300"
+      >
+
+        <ul class="space-y-2">
+
+          <li>
+            ✔ Definir TTL para información temporal
+          </li>
+
+          <li>
+            ✔ No utilizar Redis como base de datos principal
+            sin una estrategia adecuada de persistencia
+          </li>
+
+          <li>
+            ✔ Controlar el consumo de memoria
+          </li>
+
+          <li>
+            ✔ Definir políticas de eviction
+          </li>
+
+          <li>
+            ✔ Utilizar claves con una convención consistente
+          </li>
+
+          <li>
+            ✔ Evitar almacenar objetos excesivamente grandes
+          </li>
+
+          <li>
+            ✔ Monitorizar memoria, latencia y conexiones
+          </li>
+
+          <li>
+            ✔ Utilizar Redis Cluster cuando la escala lo requiera
+          </li>
+
+          <li>
+            ✔ Implementar alta disponibilidad cuando Redis
+            sea crítico para el negocio
+          </li>
+
+        </ul>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</div>
