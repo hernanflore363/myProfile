@@ -1,30 +1,38 @@
 <section class="py-32 px-6 text-center">
+  --
+  <!-- backdrop -->
+  @if (isOpen) {
+<div
+  class="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center z-50 overflow-y-auto"
+>
+  <div 
+    class="rounded-2xl shadow-xl w-6xl max-w-4xl p-6 text-white"
+  >
+    <h2 class="text-xl font-semibold mb-4">Modal transparente</h2>
 
+    <p class="mb-4">
+      @if (isSelect == "docker") {
+        <app-docker/>
+      }
+      @if (isSelect == "k8s") {
+        <app-k8s/>
+      }
+      @if (isSelect == "argo-cd") {
+        <app-argo-cd/>
+      }
+    </p>
+
+    <button 
+      class="bg-white/30 px-4 py-2 rounded-lg"
+      (click)="close()"
+    >
+      Cerrar
+    </button>
+  </div>
+</div>
+  }
 
   --
-  <app-k8s/>
-  --
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
   <h2 class="text-4xl font-semibold">
     Skills
@@ -155,9 +163,9 @@
                   transition"></div>
 
       <div class="flex justify-center gap-5 mb-6 relative z-10">
-        <img src="./images/logos/docker.png" class="w-12 h-12 transition hover:scale-110">
-        <img src="./images/logos/k8s.png" class="w-12 h-12 transition hover:scale-110">
-        <img src="./images/logos/argo-cd.png" class="w-12 h-12 transition hover:scale-110">
+        <img src="./images/logos/docker.png" class="w-12 h-12 transition hover:scale-110" (click)="open('docker')">
+        <img src="./images/logos/k8s.png" class="w-12 h-12 transition hover:scale-110" (click)="open('k8s')">
+        <img src="./images/logos/argo-cd.png" class="w-12 h-12 transition hover:scale-110" (click)="open('argo-cd')">
       </div>
 
       <h3 class="text-xl font-medium relative z-10">

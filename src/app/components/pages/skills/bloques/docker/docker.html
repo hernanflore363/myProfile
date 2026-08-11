@@ -1,0 +1,532 @@
+<div class="min-h-screen bg-[#0d1117] text-gray-200 font-mono">
+
+  <!-- TOP BAR -->
+
+  <div class="bg-[#161b22] px-6 py-3 border-b border-gray-700 flex items-center gap-2">
+    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+
+```
+<span class="ml-4 text-sm text-gray-400">
+  docker-architecture.component.html
+</span>
+```
+
+  </div>
+
+  <div class="p-10 max-w-7xl mx-auto">
+
+```
+<!-- HEADER -->
+
+<section class="mb-16">
+  <h1 class="text-4xl font-bold text-blue-400 mb-4">
+    Docker Architecture – Production Guide
+  </h1>
+
+  <p class="text-gray-400 text-lg">
+    Guía práctica de Docker para construir, ejecutar, conectar,
+    persistir y distribuir aplicaciones contenerizadas.
+  </p>
+</section>
+
+
+<!-- GRID -->
+
+<section class="grid md:grid-cols-2 gap-10">
+
+
+  <!-- DOCKERFILE -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-blue-400 font-semibold mb-2">
+      Dockerfile
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Archivo declarativo que define las instrucciones necesarias
+      para construir una imagen Docker.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+FROM node:22-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "start"]
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: definir cómo se construye una imagen
+    </span>
+
+  </div>
+
+
+  <!-- IMAGE -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-cyan-400 font-semibold mb-2">
+      Image
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Plantilla inmutable utilizada para crear contenedores.
+      Contiene código, runtime, dependencias y configuración.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+# Construir imagen
+
+docker build \
+  -t my-api:v1 .
+
+# Ver imágenes
+
+docker images
+
+# Ejecutar la imagen
+
+docker run my-api:v1
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: empaquetar aplicaciones
+    </span>
+
+  </div>
+
+
+  <!-- CONTAINER -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-green-400 font-semibold mb-2">
+      Container
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Instancia en ejecución de una imagen. Es un proceso aislado
+      que posee filesystem, red y ciclo de vida propio.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+docker run -d \
+  --name my-api \
+  -p 3000:3000 \
+  my-api:v1
+
+# Ver contenedores
+
+docker ps
+
+# Ver logs
+
+docker logs my-api
+
+# Detener
+
+docker stop my-api
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: ejecutar aplicaciones
+    </span>
+
+  </div>
+
+
+  <!-- VOLUME -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-orange-400 font-semibold mb-2">
+      Volume
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Mecanismo recomendado para persistir información fuera
+      del ciclo de vida del contenedor.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+# Crear volumen
+
+docker volume create mysql_data
+
+# Ejecutar MySQL
+
+docker run -d \
+  --name mysql \
+  -e MYSQL_ROOT_PASSWORD=secret \
+  -p 3306:3306 \
+  -v mysql_data:/var/lib/mysql \
+  mysql:latest
+
+# Ver volúmenes
+
+docker volume ls
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: persistencia de datos
+    </span>
+
+  </div>
+
+
+  <!-- NETWORK -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-purple-400 font-semibold mb-2">
+      Network
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Permite que diferentes contenedores se comuniquen
+      utilizando una red Docker aislada.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+# Crear red
+
+docker network create backend-network
+
+# MySQL
+
+docker run -d \
+  --name mysql \
+  --network backend-network \
+  -e MYSQL_ROOT_PASSWORD=secret \
+  mysql:latest
+
+# API
+
+docker run -d \
+  --name api \
+  --network backend-network \
+  my-api:v1
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: comunicación entre servicios
+    </span>
+
+  </div>
+
+
+  <!-- DOCKER COMPOSE -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-pink-400 font-semibold mb-2">
+      Docker Compose
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Permite definir y ejecutar múltiples contenedores
+      como una única aplicación.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+services:
+
+  api:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      DB_HOST: mysql
+      DB_PORT: 3306
+
+  mysql:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: appdb
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: aplicaciones multi-contenedor
+    </span>
+
+  </div>
+
+
+  <!-- REGISTRY -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-yellow-400 font-semibold mb-2">
+      Registry
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Repositorio donde se almacenan y distribuyen imágenes Docker.
+      Puede ser público o privado.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+# Login
+
+docker login
+
+# Etiquetar imagen
+
+docker tag my-api:v1 \
+  usuario/my-api:v1
+
+# Publicar
+
+docker push usuario/my-api:v1
+
+# Descargar
+
+docker pull usuario/my-api:v1
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: distribución de imágenes
+    </span>
+
+  </div>
+
+
+  <!-- HEALTHCHECK -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-red-400 font-semibold mb-2">
+      Healthcheck
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Permite determinar si el proceso dentro del contenedor
+      está funcionando correctamente.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+FROM nginx:alpine
+
+COPY ./health.html /usr/share/nginx/html/
+
+HEALTHCHECK \
+  --interval=30s \
+  --timeout=5s \
+  --retries=3 \
+  CMD wget --spider \
+  http://localhost/health.html || exit 1
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: verificar estado del contenedor
+    </span>
+
+  </div>
+
+
+  <!-- MULTI-STAGE BUILD -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-indigo-400 font-semibold mb-2">
+      Multi-stage Build
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Permite separar la etapa de compilación de la ejecución,
+      reduciendo considerablemente el tamaño de la imagen final.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+# Build stage
+
+FROM golang:1.24 AS builder
+
+WORKDIR /app
+
+COPY . .
+
+RUN go build -o api .
+
+
+# Runtime stage
+
+FROM alpine:latest
+
+WORKDIR /app
+
+COPY --from=builder /app/api .
+
+EXPOSE 8080
+
+CMD ["./api"]
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: imágenes pequeñas y seguras
+    </span>
+
+  </div>
+
+</section>
+
+
+<!-- ARCHITECTURE FLOW -->
+
+<section class="mt-20">
+
+  <h2 class="text-2xl text-white font-bold mb-6">
+    Docker Architecture Flow
+  </h2>
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <ul class="list-disc ml-6 space-y-2 text-gray-300">
+
+      <li>
+        Dockerfile → Build → Image
+      </li>
+
+      <li>
+        Image → Container
+      </li>
+
+      <li>
+        Container → Network → Container
+      </li>
+
+      <li>
+        Container → Volume → Persistent Data
+      </li>
+
+      <li>
+        Image → Registry → Deployment
+      </li>
+
+      <li>
+        Docker Compose → múltiples Containers
+      </li>
+
+    </ul>
+
+  </div>
+
+</section>
+
+
+<!-- BEST PRACTICES -->
+
+<section class="mt-16">
+
+  <h2 class="text-2xl text-green-400 font-bold mb-4">
+    Best Practices
+  </h2>
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6 text-gray-300">
+
+    <ul class="space-y-2">
+
+      <li>
+        ✔ Usar imágenes oficiales y versiones específicas
+      </li>
+
+      <li>
+        ✔ Implementar Multi-stage Builds
+      </li>
+
+      <li>
+        ✔ No almacenar información persistente dentro del container
+      </li>
+
+      <li>
+        ✔ Utilizar Volumes para bases de datos
+      </li>
+
+      <li>
+        ✔ Utilizar Networks para comunicación entre servicios
+      </li>
+
+      <li>
+        ✔ Implementar Healthchecks
+      </li>
+
+      <li>
+        ✔ No ejecutar aplicaciones como root
+      </li>
+
+      <li>
+        ✔ No incluir secrets dentro del Dockerfile
+      </li>
+
+      <li>
+        ✔ Utilizar .dockerignore
+      </li>
+
+      <li>
+        ✔ Etiquetar correctamente las imágenes
+      </li>
+
+    </ul>
+
+  </div>
+
+</section>
+```
+
+  </div>
+
+</div>

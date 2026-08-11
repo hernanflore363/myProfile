@@ -1,0 +1,626 @@
+<div class="min-h-screen bg-[#0d1117] text-gray-200 font-mono">
+
+  <!-- TOP BAR -->
+
+  <div class="bg-[#161b22] px-6 py-3 border-b border-gray-700 flex items-center gap-2">
+
+```
+<div class="w-3 h-3 bg-red-500 rounded-full"></div>
+<div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+<div class="w-3 h-3 bg-green-500 rounded-full"></div>
+
+<span class="ml-4 text-sm text-gray-400">
+  argocd-gitops.component.html
+</span>
+```
+
+  </div>
+
+  <div class="p-10 max-w-7xl mx-auto">
+
+```
+<!-- HEADER -->
+
+<section class="mb-16">
+
+  <h1 class="text-4xl font-bold text-orange-400 mb-4">
+    Argo CD – GitOps Architecture
+  </h1>
+
+  <p class="text-gray-400 text-lg">
+    Guía práctica de Argo CD para implementar GitOps,
+    automatización de despliegues y sincronización continua
+    de aplicaciones Kubernetes.
+  </p>
+
+</section>
+
+
+<!-- COMPONENTS -->
+
+<section class="grid md:grid-cols-2 gap-10">
+
+
+  <!-- APPLICATION -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-orange-400 font-semibold mb-2">
+      Application
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Recurso principal de Argo CD. Define qué aplicación
+      desplegar, desde qué repositorio y en qué cluster
+      y namespace de Kubernetes.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+
+metadata:
+  name: backend-api
+
+spec:
+
+  project: default
+
+  source:
+    repoURL: https://github.com/example/gitops
+    targetRevision: main
+    path: apps/backend
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: backend
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+
+    syncOptions:
+      - CreateNamespace=true
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: definir una aplicación GitOps
+    </span>
+
+  </div>
+
+
+  <!-- GIT REPOSITORY -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-cyan-400 font-semibold mb-2">
+      Git Repository
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Git actúa como fuente de verdad. Contiene los manifiestos
+      Kubernetes que representan el estado deseado.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+gitops/
+│
+├── apps/
+│   └── backend/
+│       ├── deployment.yaml
+│       ├── service.yaml
+│       └── ingress.yaml
+│
+└── environments/
+    ├── development/
+    ├── staging/
+    └── production/
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: fuente de verdad del sistema
+    </span>
+
+  </div>
+
+
+  <!-- SYNC -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-green-400 font-semibold mb-2">
+      Sync
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Sincroniza el estado definido en Git con el estado real
+      existente en Kubernetes.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+# Login
+
+argocd login argocd-server
+
+# Ver aplicaciones
+
+argocd app list
+
+# Sincronizar
+
+argocd app sync backend-api
+
+# Ver estado
+
+argocd app get backend-api
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: desplegar cambios
+    </span>
+
+  </div>
+
+
+  <!-- AUTO SYNC -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-blue-400 font-semibold mb-2">
+      Automated Sync
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Permite que Argo CD detecte cambios en Git y sincronice
+      automáticamente Kubernetes.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+syncPolicy:
+
+  automated:
+
+    prune: true
+
+    selfHeal: true
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: Continuous Deployment
+    </span>
+
+  </div>
+
+
+  <!-- PROJECT -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-purple-400 font-semibold mb-2">
+      Project
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Permite agrupar aplicaciones y controlar qué repositorios,
+      clusters y namespaces pueden utilizar.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+
+metadata:
+  name: financial-platform
+
+spec:
+
+  sourceRepos:
+    - https://github.com/example/*
+
+  destinations:
+
+    - namespace: payments
+      server: https://kubernetes.default.svc
+
+    - namespace: accounts
+      server: https://kubernetes.default.svc
+
+  clusterResourceWhitelist:
+
+    - group: "*"
+      kind: "*"
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: gobierno y control de aplicaciones
+    </span>
+
+  </div>
+
+
+  <!-- REPOSITORY -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-yellow-400 font-semibold mb-2">
+      Repository
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Argo CD puede conectarse a repositorios Git privados
+      para obtener manifiestos y configuraciones.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+argocd repo add \
+  https://github.com/example/private-gitops \
+  --username developer \
+  --password ********
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: integración con Git privado
+    </span>
+
+  </div>
+
+
+  <!-- HELM -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-pink-400 font-semibold mb-2">
+      Helm
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Argo CD puede desplegar aplicaciones Kubernetes
+      utilizando Helm Charts.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+spec:
+
+  source:
+
+    repoURL:
+      https://github.com/example/charts
+
+    path:
+      backend
+
+    helm:
+
+      valueFiles:
+        - values-production.yaml
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: parametrización de despliegues
+    </span>
+
+  </div>
+
+
+  <!-- KUSTOMIZE -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-red-400 font-semibold mb-2">
+      Kustomize
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Permite administrar diferentes ambientes utilizando
+      overlays sobre una configuración base.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+apps/
+│
+├── base/
+│   ├── deployment.yaml
+│   └── service.yaml
+│
+└── overlays/
+    │
+    ├── development/
+    │   └── kustomization.yaml
+    │
+    ├── staging/
+    │   └── kustomization.yaml
+    │
+    └── production/
+        └── kustomization.yaml
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: múltiples ambientes
+    </span>
+
+  </div>
+
+
+  <!-- ROLLBACK -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-indigo-400 font-semibold mb-2">
+      Rollback
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Permite regresar una aplicación a una versión anterior
+      registrada en el historial de despliegues.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+# Ver historial
+
+argocd app history backend-api
+
+# Rollback
+
+argocd app rollback backend-api 5
+
+# Ver estado
+
+argocd app get backend-api
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: recuperación ante despliegues fallidos
+    </span>
+
+  </div>
+
+
+  <!-- RBAC -->
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <h2 class="text-xl text-red-400 font-semibold mb-2">
+      RBAC
+    </h2>
+
+    <p class="text-gray-400 mb-4">
+      Controla qué usuarios y equipos pueden administrar
+      aplicaciones dentro de Argo CD.
+    </p>
+```
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+<code class="block whitespace-pre">
+policy.csv:
+
+p, role:developer, applications,
+  get, financial/*, allow
+
+p, role:developer, applications,
+  sync, financial/*, allow
+
+p, role:developer, applications,
+  delete, financial/*, deny
+
+g, developer, role:developer
+</code>
+</pre>
+
+```
+    <span class="text-xs text-gray-500">
+      Use: seguridad y gobierno
+    </span>
+
+  </div>
+
+</section>
+
+
+<!-- GITOPS FLOW -->
+
+<section class="mt-20">
+
+  <h2 class="text-2xl text-white font-bold mb-6">
+    GitOps Architecture Flow
+  </h2>
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+    <ul class="list-disc ml-6 space-y-2 text-gray-300">
+
+      <li>
+        Developer → Git Push
+      </li>
+
+      <li>
+        Git → Source of Truth
+      </li>
+
+      <li>
+        Argo CD → Detecta cambios
+      </li>
+
+      <li>
+        Argo CD → Compara Desired State vs Live State
+      </li>
+
+      <li>
+        Argo CD → Sync
+      </li>
+
+      <li>
+        Kubernetes → Aplica cambios
+      </li>
+
+      <li>
+        Argo CD → Health / Sync Status
+      </li>
+
+    </ul>
+
+  </div>
+
+</section>
+
+
+<!-- COMPLETE ARCHITECTURE -->
+
+<section class="mt-16">
+
+  <h2 class="text-2xl text-orange-400 font-bold mb-6">
+    Production GitOps Architecture
+  </h2>
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+```
+
+<pre class="text-green-400 text-sm overflow-x-auto text-left">
+<code class="block whitespace-pre">
+                 ┌──────────────────┐
+                 │    Developer     │
+                 └────────┬─────────┘
+                          │
+                       git push
+                          │
+                          ▼
+                 ┌──────────────────┐
+                 │     GitHub       │
+                 │   Git Repository │
+                 └────────┬─────────┘
+                          │
+                          │ Watch / Poll
+                          ▼
+                 ┌──────────────────┐
+                 │     Argo CD      │
+                 │                  │
+                 │ Desired State    │
+                 │       vs         │
+                 │ Live State       │
+                 └────────┬─────────┘
+                          │
+                        Sync
+                          │
+                          ▼
+                 ┌──────────────────┐
+                 │    Kubernetes    │
+                 │                  │
+                 │ Deployment       │
+                 │ Service          │
+                 │ Ingress          │
+                 │ ConfigMap        │
+                 │ Secret           │
+                 └────────┬─────────┘
+                          │
+                          ▼
+                       ┌──────┐
+                       │ Pods │
+                       └──────┘
+</code>
+</pre>
+
+```
+  </div>
+
+</section>
+
+
+<!-- BEST PRACTICES -->
+
+<section class="mt-16">
+
+  <h2 class="text-2xl text-green-400 font-bold mb-4">
+    Best Practices
+  </h2>
+
+  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6 text-gray-300">
+
+    <ul class="space-y-2">
+
+      <li>
+        ✔ Git debe ser la fuente de verdad
+      </li>
+
+      <li>
+        ✔ Separar configuración por ambientes
+      </li>
+
+      <li>
+        ✔ Utilizar AppProjects para gobierno
+      </li>
+
+      <li>
+        ✔ Habilitar selfHeal cuando corresponda
+      </li>
+
+      <li>
+        ✔ Utilizar prune con control
+      </li>
+
+      <li>
+        ✔ Implementar RBAC
+      </li>
+
+      <li>
+        ✔ No almacenar secrets directamente en Git
+      </li>
+
+      <li>
+        ✔ Utilizar Helm o Kustomize para parametrización
+      </li>
+
+      <li>
+        ✔ Mantener historial de cambios mediante Git
+      </li>
+
+      <li>
+        ✔ Separar repositorio de aplicación y configuración GitOps
+      </li>
+
+    </ul>
+
+  </div>
+
+</section>
+```
+
+  </div>
+
+</div>

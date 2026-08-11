@@ -1,23 +1,41 @@
-<section class="h-screen flex flex-col justify-center items-center text-center px-6">
-  <h1 class="text-6xl font-semibold tracking-tight">
-    Hernán Flores Ramírez
-  </h1>
+<section class="min-h-screen flex items-center justify-center px-6 md:px-10 pt-28 md:pt-32">
+  <div class="max-w-6xl w-full grid md:grid-cols-2 gap-10 items-center">
 
-  <p class="text-2xl mt-4 font-medium">
-    Arquitecto de Software especializado en sistemas financieros de alta escala
-  </p>
+    <!-- FOTO -->
+    <div class="flex justify-center md:justify-end">
+      <div class="w-48 h-48 md:w-72 md:h-72 rounded-full overflow-hidden border border-gray-700 shadow-lg">
+        <img 
+          src="./images/yo.jpg" 
+          alt="Hernán Flores Ramírez"
+          class="w-full h-full object-cover"
+        />
+      </div>
+    </div>
 
-  <p class="text-lg text-gray-400 mt-4 max-w-2xl">
-    Diseño y construyo plataformas resilientes y de alta disponibilidad para pagos, banca digital y sistemas distribuidos.
-    Experiencia en arquitecturas de microservicios, eventos, Kubernetes y soluciones cloud-native.
-  </p>
+    <!-- TEXTO -->
+    <div class="text-center md:text-left">
+      <h1 class="text-4xl md:text-6xl font-semibold tracking-tight">
+        Hernán Flores Ramírez
+      </h1>
 
-  <div class="mt-8 flex gap-4">
-    <button class="px-6 py-3 bg-white text-black rounded-full">
-      Ver Arquitectura y Proyectos
-    </button>
-    <button class="px-6 py-3 border border-gray-500 rounded-full">
-      Contáctame
-    </button>
+      <p class="text-xl md:text-2xl mt-4 font-medium text-gray-300">
+        Arquitecto de Software especializado en sistemas empresariales y financieros de alta demanda, con enfoque en arquitecturas escalables y resilientes para entornos de alto tráfico.
+      </p>
+
+      <p class="text-base md:text-lg text-gray-400 mt-4 max-w-xl">
+        Diseño y construyo plataformas de alta disponibilidad para pagos, banca digital y sistemas distribuidos, integrando microservicios, arquitecturas orientadas a eventos y soluciones cloud-native sobre Kubernetes.
+      </p>
+
+      <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+        <button class="px-6 py-3 bg-white text-black rounded-full hover:scale-105 transition">
+          Ver Arquitectura y Proyectos
+        </button>
+
+        <button class="px-6 py-3 border border-gray-500 rounded-full hover:bg-gray-800 transition">
+          Contáctame
+        </button>
+      </div>
+    </div>
+
   </div>
 </section>
