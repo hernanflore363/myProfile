@@ -1,0 +1,1472 @@
+<div class="min-h-screen bg-[#0d1117] text-gray-200 font-mono">
+
+  <!-- TOP BAR -->
+
+  <div
+    class="bg-[#161b22] px-6 py-3 border-b border-red-900/50
+           flex items-center gap-2 sticky top-0 z-50"
+  >
+    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+
+    <span class="ml-4 text-sm text-gray-400">
+      angular-enterprise.component.html
+    </span>
+  </div>
+
+
+  <div class="p-6 md:p-10 max-w-7xl mx-auto">
+
+    <!-- HEADER -->
+
+    <section class="mb-20">
+
+      <span class="text-red-400 text-sm">
+        FRONTEND ARCHITECTURE
+      </span>
+
+      <h1 class="text-4xl md:text-5xl font-bold text-red-500 mt-3 mb-5">
+        Angular – Enterprise Architecture Guide
+      </h1>
+
+      <p class="text-gray-400 text-lg max-w-4xl">
+        Manual técnico de Angular orientado al desarrollo de aplicaciones
+        empresariales, arquitecturas escalables, aplicaciones reactivas,
+        sistemas distribuidos y frontend de alta complejidad.
+      </p>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- ANGULAR CORE -->
+    <!-- ===================================================== -->
+
+    <section>
+
+      <h2 class="text-2xl text-red-400 font-bold mb-8">
+        Angular Core
+      </h2>
+
+      <div class="grid md:grid-cols-2 gap-8">
+
+
+        <!-- COMPONENT -->
+
+        <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-red-400 font-semibold mb-3">
+            Component
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Unidad fundamental de Angular. Encapsula template,
+            lógica, estado y comportamiento visual.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-red-300 text-xs overflow-x-auto"><code>@Component(&#123;
+  selector: 'app-user',
+  templateUrl: './user.html'
+&#125;)
+export class UserComponent &#123;
+
+  name = 'Hernán';
+
+&#125;</code></pre>
+
+          <span class="text-xs text-gray-500">
+            Use: UI modular y reutilizable
+          </span>
+
+        </div>
+
+
+        <!-- TEMPLATE -->
+
+        <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-orange-400 font-semibold mb-3">
+            Templates
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Los templates permiten declarar la interfaz utilizando
+            HTML extendido con bindings y control flow.
+          </p>
+
+          <!-- <pre class="bg-[#0d1117] p-4 rounded text-red-300 text-xs overflow-x-auto"><code>&lt;h1&gt;
+  &#123;&#123; user.name &#125;&#125;
+&lt;/h1&gt;
+
+@if (user) &#123;
+  &lt;p&gt;Usuario activo&lt;/p&gt;
+&#125;
+
+@for (item of items; track item.id) &#123;
+  &lt;div&gt;&#123;&#123; item.name &#125;&#125;&lt;/div&gt;
+&#125;</code></pre> -->
+
+          <span class="text-xs text-gray-500">
+            Use: renderizado declarativo
+          </span>
+
+        </div>
+
+
+        <!-- DIRECTIVES -->
+
+        <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-yellow-400 font-semibold mb-3">
+            Directives
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Permiten modificar el comportamiento o apariencia
+            de elementos del DOM.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-red-300 text-xs overflow-x-auto"><code>@Directive(&#123;
+  selector: '[appHighlight]'
+&#125;)
+export class HighlightDirective &#123;
+
+  constructor(
+    private el: ElementRef
+  ) &#123;&#125;
+
+&#125;</code></pre>
+
+          <span class="text-xs text-gray-500">
+            Use: comportamiento reutilizable
+          </span>
+
+        </div>
+
+
+        <!-- PIPES -->
+
+        <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-purple-400 font-semibold mb-3">
+            Pipes
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Transforman datos directamente desde el template.
+          </p>
+
+          <!-- <pre class="bg-[#0d1117] p-4 rounded text-red-300 text-xs overflow-x-auto"><code>&lt;p&gt;
+  &#123;&#123; price | currency:'USD' &#125;&#125;
+&lt;/p&gt;
+
+&lt;p&gt;
+  &#123;&#123; createdAt | date:'dd/MM/yyyy' &#125;&#125;
+&lt;/p&gt;</code></pre> -->
+
+          <span class="text-xs text-gray-500">
+            Use: transformación de datos
+          </span>
+
+        </div>
+
+
+        <!-- DEPENDENCY INJECTION -->
+
+        <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-green-400 font-semibold mb-3">
+            Dependency Injection
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Angular proporciona un sistema de inyección de dependencias
+            para administrar servicios y recursos.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-red-300 text-xs overflow-x-auto"><code>@Injectable(&#123;
+  providedIn: 'root'
+&#125;)
+export class UserService &#123;
+
+  constructor(
+    private http: HttpClient
+  ) &#123;&#125;
+
+&#125;</code></pre>
+
+          <span class="text-xs text-gray-500">
+            Use: desacoplamiento y testabilidad
+          </span>
+
+        </div>
+
+
+        <!-- SERVICES -->
+
+        <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-cyan-400 font-semibold mb-3">
+            Services
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Encapsulan lógica de negocio, acceso a APIs,
+            estado compartido y funcionalidades reutilizables.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-red-300 text-xs overflow-x-auto"><code>@Injectable(&#123;
+  providedIn: 'root'
+&#125;)
+export class PaymentService &#123;
+
+  getPayments() &#123;
+    return this.http.get('/api/payments');
+  &#125;
+
+&#125;</code></pre>
+
+          <span class="text-xs text-gray-500">
+            Use: lógica de negocio
+          </span>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- SIGNALS -->
+    <!-- ===================================================== -->
+
+    <section class="mt-20">
+
+      <h2 class="text-2xl text-red-400 font-bold mb-8">
+        Signals & Reactive State
+      </h2>
+
+      <div class="grid md:grid-cols-2 gap-8">
+
+
+        <!-- SIGNAL -->
+
+        <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-red-400 font-semibold mb-3">
+            signal()
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Permite representar estado reactivo de forma granular.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-red-300 text-xs overflow-x-auto"><code>count = signal(0);
+
+increment() &#123;
+  this.count.update(
+    value =&gt; value + 1
+  );
+&#125;</code></pre>
+
+        </div>
+
+
+        <!-- COMPUTED -->
+
+        <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-orange-400 font-semibold mb-3">
+            computed()
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Define valores derivados de otros signals.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-red-300 text-xs overflow-x-auto"><code>price = signal(100);
+quantity = signal(2);
+
+total = computed(
+  () =&gt; this.price() * this.quantity()
+);</code></pre>
+
+        </div>
+
+
+        <!-- EFFECT -->
+
+        <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-yellow-400 font-semibold mb-3">
+            effect()
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Ejecuta efectos secundarios cuando cambian signals.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-red-300 text-xs overflow-x-auto"><code>effect(() =&gt; &#123;
+
+  console.log(
+    this.count()
+  );
+
+&#125;);</code></pre>
+
+        </div>
+
+
+        <!-- INPUT OUTPUT -->
+
+        <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-purple-400 font-semibold mb-3">
+            Signal Inputs
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Comunicación reactiva entre componentes.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-red-300 text-xs overflow-x-auto"><code>user = input&lt;User&gt;();
+
+name = computed(
+  () =&gt; this.user().name
+);</code></pre>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- RXJS -->
+    <!-- ===================================================== -->
+
+    <section class="mt-20">
+
+      <h2 class="text-2xl text-cyan-400 font-bold mb-8">
+        RxJS & Reactive Programming
+      </h2>
+
+      <div class="grid md:grid-cols-2 gap-8">
+
+
+        <!-- OBSERVABLE -->
+
+        <div class="bg-[#161b22] border border-cyan-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-cyan-400 font-semibold mb-3">
+            Observable
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Representa una secuencia de valores que puede emitirse
+            de forma síncrona o asíncrona.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-cyan-300 text-xs overflow-x-auto"><code>users$ = this.http.get&lt;User[]&gt;(
+  '/api/users'
+);</code></pre>
+
+        </div>
+
+
+        <!-- OPERATORS -->
+
+        <div class="bg-[#161b22] border border-cyan-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-green-400 font-semibold mb-3">
+            Operators
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Permiten transformar, combinar y controlar streams.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-cyan-300 text-xs overflow-x-auto"><code>this.http.get('/api/users')
+  .pipe(
+    map(users =&gt; users),
+    filter(users =&gt; users.length &gt; 0),
+    catchError(error =&gt; ...)
+  );</code></pre>
+
+        </div>
+
+
+        <!-- SWITCHMAP -->
+
+        <div class="bg-[#161b22] border border-cyan-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-yellow-400 font-semibold mb-3">
+            switchMap
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Cancela la operación anterior cuando llega una nueva emisión.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-cyan-300 text-xs overflow-x-auto"><code>search$
+  .pipe(
+    debounceTime(300),
+    switchMap(term =&gt;
+      this.search(term)
+    )
+  );</code></pre>
+
+        </div>
+
+
+        <!-- SUBJECT -->
+
+        <div class="bg-[#161b22] border border-cyan-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-purple-400 font-semibold mb-3">
+            Subjects
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Permiten actuar como Observable y Observer.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-cyan-300 text-xs overflow-x-auto"><code>private refreshSubject =
+  new Subject&lt;void&gt;();
+
+refresh() &#123;
+  this.refreshSubject.next();
+&#125;</code></pre>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- ROUTING -->
+    <!-- ===================================================== -->
+
+    <section class="mt-20">
+
+      <h2 class="text-2xl text-purple-400 font-bold mb-8">
+        Routing & Navigation
+      </h2>
+
+      <div class="bg-[#161b22] border border-purple-900/50 rounded-xl p-6">
+
+        <p class="text-gray-400 mb-5">
+          Angular Router permite construir aplicaciones SPA con
+          navegación, parámetros, guards, lazy loading y resolvers.
+        </p>
+
+        <pre class="bg-[#0d1117] p-4 rounded text-purple-300 text-xs overflow-x-auto"><code>export const routes: Routes = [
+
+  &#123;
+    path: '',
+    component: HomeComponent
+  &#125;,
+
+  &#123;
+    path: 'dashboard',
+    loadComponent: () =&gt;
+      import('./dashboard.component')
+  &#125;,
+
+  &#123;
+    path: 'admin',
+    canActivate: [authGuard],
+    loadChildren: () =&gt;
+      import('./admin.routes')
+  &#125;
+
+];</code></pre>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- LAZY LOADING -->
+    <!-- ===================================================== -->
+
+    <section class="mt-16">
+
+      <h2 class="text-2xl text-blue-400 font-bold mb-8">
+        Lazy Loading
+      </h2>
+
+      <div class="grid md:grid-cols-2 gap-8">
+
+        <div class="bg-[#161b22] border border-blue-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-blue-400 font-semibold mb-3">
+            Lazy Components
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Carga componentes únicamente cuando son requeridos.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-blue-300 text-xs overflow-x-auto"><code>&#123;
+  path: 'reports',
+
+  loadComponent: () =&gt;
+    import('./reports.component')
+&#125;</code></pre>
+
+        </div>
+
+
+        <div class="bg-[#161b22] border border-blue-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-green-400 font-semibold mb-3">
+            Lazy Routes
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Divide la aplicación en diferentes áreas funcionales.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-blue-300 text-xs overflow-x-auto"><code>&#123;
+  path: 'admin',
+
+  loadChildren: () =&gt;
+    import('./admin.routes')
+&#125;</code></pre>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- FORMS -->
+    <!-- ===================================================== -->
+
+    <section class="mt-20">
+
+      <h2 class="text-2xl text-green-400 font-bold mb-8">
+        Forms
+      </h2>
+
+      <div class="grid md:grid-cols-2 gap-8">
+
+
+        <div class="bg-[#161b22] border border-green-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-green-400 font-semibold mb-3">
+            Reactive Forms
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Permiten construir formularios complejos con validación
+            programática y estado controlado.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>form = new FormGroup(&#123;
+
+  name: new FormControl(
+    '',
+    Validators.required
+  ),
+
+  email: new FormControl(
+    '',
+    [
+      Validators.required,
+      Validators.email
+    ]
+  )
+
+&#125;);</code></pre>
+
+        </div>
+
+
+        <div class="bg-[#161b22] border border-green-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-cyan-400 font-semibold mb-3">
+            Validation
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Angular proporciona validadores síncronos y asíncronos.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>email = new FormControl(
+  '',
+  [
+    Validators.required,
+    Validators.email
+  ]
+);</code></pre>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- HTTP -->
+    <!-- ===================================================== -->
+
+    <section class="mt-20">
+
+      <h2 class="text-2xl text-orange-400 font-bold mb-8">
+        HTTP & API Integration
+      </h2>
+
+      <div class="grid md:grid-cols-2 gap-8">
+
+
+        <!-- HTTP CLIENT -->
+
+        <div class="bg-[#161b22] border border-orange-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-orange-400 font-semibold mb-3">
+            HttpClient
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Cliente HTTP utilizado para consumir APIs REST,
+            servicios backend y microservicios.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-orange-300 text-xs overflow-x-auto"><code>getUsers() &#123;
+
+  return this.http.get&lt;User[]&gt;(
+    '/api/users'
+  );
+
+&#125;</code></pre>
+
+        </div>
+
+
+        <!-- INTERCEPTORS -->
+
+        <div class="bg-[#161b22] border border-orange-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-red-400 font-semibold mb-3">
+            HTTP Interceptors
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Permiten interceptar solicitudes y respuestas HTTP.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-orange-300 text-xs overflow-x-auto"><code>export const authInterceptor:
+HttpInterceptorFn = (req, next) =&gt; &#123;
+
+  const token = authService.token();
+
+  const request = req.clone(&#123;
+
+    setHeaders: &#123;
+      Authorization:
+        `Bearer $&#123;token&#125;`
+    &#125;
+
+  &#125;);
+
+  return next(request);
+
+&#125;;</code></pre>
+
+        </div>
+
+
+        <!-- ERROR HANDLING -->
+
+        <div class="bg-[#161b22] border border-orange-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-yellow-400 font-semibold mb-3">
+            Error Handling
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Permite controlar errores de comunicación y presentar
+            respuestas consistentes al usuario.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-orange-300 text-xs overflow-x-auto"><code>this.http.get('/api/users')
+  .pipe(
+    retry(2),
+    catchError(error =&gt; &#123;
+
+      console.error(error);
+
+      return throwError(
+        () =&gt; error
+      );
+
+    &#125;)
+  );</code></pre>
+
+        </div>
+
+
+        <!-- API ARCHITECTURE -->
+
+        <div class="bg-[#161b22] border border-orange-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-purple-400 font-semibold mb-3">
+            API Architecture
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Angular puede integrarse con arquitecturas basadas en
+            REST, GraphQL, BFF y microservicios.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-orange-300 text-xs overflow-x-auto"><code>Angular
+   │
+   ▼
+API Gateway
+   │
+   ├── User Service
+   ├── Payment Service
+   ├── Account Service
+   └── Notification Service</code></pre>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- STATE MANAGEMENT -->
+    <!-- ===================================================== -->
+
+    <section class="mt-20">
+
+      <h2 class="text-2xl text-pink-400 font-bold mb-8">
+        State Management
+      </h2>
+
+      <div class="grid md:grid-cols-3 gap-8">
+
+        <div class="bg-[#161b22] border border-pink-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-pink-400 font-semibold mb-3">
+            Signals
+          </h3>
+
+          <p class="text-gray-400">
+            Estado reactivo local y granular.
+          </p>
+
+        </div>
+
+        <div class="bg-[#161b22] border border-pink-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-purple-400 font-semibold mb-3">
+            Services
+          </h3>
+
+          <p class="text-gray-400">
+            Estado compartido entre componentes.
+          </p>
+
+        </div>
+
+        <div class="bg-[#161b22] border border-pink-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-blue-400 font-semibold mb-3">
+            NgRx
+          </h3>
+
+          <p class="text-gray-400">
+            Gestión de estado global con arquitectura Redux.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- CONTENT PROJECTION -->
+    <!-- ===================================================== -->
+
+    <section class="mt-20">
+
+      <h2 class="text-2xl text-cyan-400 font-bold mb-8">
+        Component Communication
+      </h2>
+
+      <div class="grid md:grid-cols-2 gap-8">
+
+
+        <div class="bg-[#161b22] border border-cyan-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-cyan-400 font-semibold mb-3">
+            Parent → Child
+          </h3>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-cyan-300 text-xs overflow-x-auto"><code>&lt;app-user
+  [user]="selectedUser"
+/&gt;</code></pre>
+
+        </div>
+
+
+        <div class="bg-[#161b22] border border-cyan-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-green-400 font-semibold mb-3">
+            Child → Parent
+          </h3>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-cyan-300 text-xs overflow-x-auto"><code>&lt;button
+  (click)="save()"
+&gt;
+  Guardar
+&lt;/button&gt;</code></pre>
+
+        </div>
+
+
+        <div class="bg-[#161b22] border border-cyan-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-yellow-400 font-semibold mb-3">
+            Shared State
+          </h3>
+
+          <p class="text-gray-400">
+            Services y Signals permiten compartir estado entre
+            diferentes componentes sin acoplamiento directo.
+          </p>
+
+        </div>
+
+
+        <div class="bg-[#161b22] border border-cyan-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-purple-400 font-semibold mb-3">
+            Content Projection
+          </h3>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-cyan-300 text-xs overflow-x-auto"><code>&lt;app-card&gt;
+
+  &lt;h2&gt;Dashboard&lt;/h2&gt;
+
+  &lt;p&gt;Contenido&lt;/p&gt;
+
+&lt;/app-card&gt;</code></pre>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- LIFECYCLE -->
+    <!-- ===================================================== -->
+
+    <section class="mt-20">
+
+      <h2 class="text-2xl text-yellow-400 font-bold mb-8">
+        Component Lifecycle
+      </h2>
+
+      <div class="bg-[#161b22] border border-yellow-900/50 rounded-xl p-6">
+
+        <pre class="text-yellow-300 text-sm overflow-x-auto"><code>Constructor
+    │
+    ▼
+ngOnChanges
+    │
+    ▼
+ngOnInit
+    │
+    ▼
+ngDoCheck
+    │
+    ▼
+ngAfterContentInit
+    │
+    ▼
+ngAfterViewInit
+    │
+    ▼
+ngOnDestroy</code></pre>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- CHANGE DETECTION -->
+    <!-- ===================================================== -->
+
+    <section class="mt-20">
+
+      <h2 class="text-2xl text-green-400 font-bold mb-8">
+        Change Detection & Performance
+      </h2>
+
+      <div class="grid md:grid-cols-2 gap-8">
+
+
+        <div class="bg-[#161b22] border border-green-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-green-400 font-semibold mb-3">
+            OnPush
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Reduce verificaciones innecesarias utilizando una estrategia
+            de detección de cambios más eficiente.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>@Component(&#123;
+
+  changeDetection:
+    ChangeDetectionStrategy.OnPush
+
+&#125;)</code></pre>
+
+        </div>
+
+
+        <div class="bg-[#161b22] border border-green-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-cyan-400 font-semibold mb-3">
+            Track
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Permite identificar elementos de una colección para
+            minimizar operaciones innecesarias en el DOM.
+          </p>
+
+          <!-- <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>@for (user of users; track user.id) &#123;
+
+  &lt;app-user
+    [user]="user"
+  /&gt;
+
+&#125;</code></pre> -->
+
+        </div>
+
+
+        <div class="bg-[#161b22] border border-green-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-orange-400 font-semibold mb-3">
+            Lazy Loading
+          </h3>
+
+          <p class="text-gray-400">
+            Cargar funcionalidad únicamente cuando el usuario
+            la necesita reduce el JavaScript inicial.
+          </p>
+
+        </div>
+
+
+        <div class="bg-[#161b22] border border-green-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-red-400 font-semibold mb-3">
+            Deferrable Views
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Permiten retrasar la carga de partes de una interfaz.
+          </p>
+
+          <!-- pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>@defer &#123;
+
+  &lt;app-heavy-chart /&gt;
+
+&#125; @placeholder &#123;
+
+  &lt;app-loading /&gt;
+
+&#125;</code></pre -->
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- SSR -->
+    <!-- ===================================================== -->
+
+    <section class="mt-20">
+
+      <h2 class="text-2xl text-blue-400 font-bold mb-8">
+        SSR & Rendering
+      </h2>
+
+      <div class="grid md:grid-cols-3 gap-8">
+
+        <div class="bg-[#161b22] border border-blue-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-blue-400 font-semibold mb-3">
+            CSR
+          </h3>
+
+          <p class="text-gray-400">
+            Client-Side Rendering.
+            El navegador construye la aplicación.
+          </p>
+
+        </div>
+
+        <div class="bg-[#161b22] border border-blue-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-purple-400 font-semibold mb-3">
+            SSR
+          </h3>
+
+          <p class="text-gray-400">
+            Server-Side Rendering.
+            El servidor genera HTML inicial.
+          </p>
+
+        </div>
+
+        <div class="bg-[#161b22] border border-blue-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-green-400 font-semibold mb-3">
+            Hydration
+          </h3>
+
+          <p class="text-gray-400">
+            Permite reutilizar el HTML generado en servidor
+            y convertirlo en una aplicación interactiva.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- SECURITY -->
+    <!-- ===================================================== -->
+
+    <section class="mt-20">
+
+      <h2 class="text-2xl text-red-400 font-bold mb-8">
+        Security
+      </h2>
+
+      <div class="grid md:grid-cols-2 gap-8">
+
+
+        <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-red-400 font-semibold mb-3">
+            Authentication
+          </h3>
+
+          <p class="text-gray-400">
+            Integración con OAuth2, OpenID Connect, JWT,
+            Keycloak y proveedores de identidad.
+          </p>
+
+        </div>
+
+
+        <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-orange-400 font-semibold mb-3">
+            Route Guards
+          </h3>
+
+          <p class="text-gray-400 mb-5">
+            Protegen rutas según autenticación o autorización.
+          </p>
+
+          <pre class="bg-[#0d1117] p-4 rounded text-red-300 text-xs overflow-x-auto"><code>export const authGuard:
+CanActivateFn = () =&gt; &#123;
+
+  return authService.isAuthenticated();
+
+&#125;;</code></pre>
+
+        </div>
+
+
+        <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-yellow-400 font-semibold mb-3">
+            XSS Protection
+          </h3>
+
+          <p class="text-gray-400">
+            Angular proporciona sanitización automática para
+            diferentes contextos del DOM.
+          </p>
+
+        </div>
+
+
+        <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-purple-400 font-semibold mb-3">
+            HTTP Security
+          </h3>
+
+          <p class="text-gray-400">
+            Interceptors pueden utilizarse para agregar tokens,
+            headers y políticas de comunicación.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- TESTING -->
+    <!-- ===================================================== -->
+
+    <section class="mt-20">
+
+      <h2 class="text-2xl text-pink-400 font-bold mb-8">
+        Testing
+      </h2>
+
+      <div class="grid md:grid-cols-3 gap-8">
+
+        <div class="bg-[#161b22] border border-pink-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-pink-400 font-semibold mb-3">
+            Unit Testing
+          </h3>
+
+          <p class="text-gray-400">
+            Validación de componentes, servicios, pipes y funciones.
+          </p>
+
+        </div>
+
+        <div class="bg-[#161b22] border border-pink-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-purple-400 font-semibold mb-3">
+            Integration
+          </h3>
+
+          <p class="text-gray-400">
+            Validación de interacción entre diferentes partes
+            de la aplicación.
+          </p>
+
+        </div>
+
+        <div class="bg-[#161b22] border border-pink-900/50 rounded-xl p-6">
+
+          <h3 class="text-xl text-red-400 font-semibold mb-3">
+            E2E
+          </h3>
+
+          <p class="text-gray-400">
+            Validación de flujos completos desde la perspectiva
+            del usuario.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- ARCHITECTURE -->
+    <!-- ===================================================== -->
+
+    <section class="mt-20">
+
+      <h2 class="text-2xl text-red-400 font-bold mb-6">
+        Enterprise Angular Architecture
+      </h2>
+
+      <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+        <pre class="text-red-300 text-sm overflow-x-auto text-left"><code>
+                         ┌──────────────────────┐
+                         │        Angular       │
+                         │       Frontend       │
+                         └──────────┬───────────┘
+                                    │
+                         ┌──────────▼───────────┐
+                         │      Components      │
+                         └──────────┬───────────┘
+                                    │
+                         ┌──────────▼───────────┐
+                         │   Feature Modules    │
+                         │   / Feature Areas    │
+                         └──────────┬───────────┘
+                                    │
+                    ┌───────────────┼───────────────┐
+                    │               │               │
+                    ▼               ▼               ▼
+               ┌─────────┐    ┌──────────┐    ┌──────────┐
+               │ Signals │    │ Services │    │  NgRx    │
+               └────┬────┘    └─────┬────┘    └────┬─────┘
+                    │               │               │
+                    └───────────────┼───────────────┘
+                                    │
+                         ┌──────────▼───────────┐
+                         │      HttpClient      │
+                         └──────────┬───────────┘
+                                    │
+                         ┌──────────▼───────────┐
+                         │     API Gateway      │
+                         └──────────┬───────────┘
+                                    │
+              ┌─────────────────────┼─────────────────────┐
+              │                     │                     │
+              ▼                     ▼                     ▼
+        ┌───────────┐         ┌───────────┐        ┌───────────┐
+        │   Users   │         │ Payments  │        │ Accounts  │
+        │  Service  │         │  Service  │        │  Service  │
+        └───────────┘         └───────────┘        └───────────┘
+        </code></pre>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- PROJECT STRUCTURE -->
+    <!-- ===================================================== -->
+
+    <section class="mt-16">
+
+      <h2 class="text-2xl text-cyan-400 font-bold mb-6">
+        Recommended Project Structure
+      </h2>
+
+      <div class="bg-[#161b22] border border-cyan-900/50 rounded-xl p-6">
+
+        <pre class="text-cyan-300 text-sm overflow-x-auto text-left"><code>
+src/
+│
+├── app/
+│
+│   ├── core/
+│   │   ├── guards/
+│   │   ├── interceptors/
+│   │   ├── services/
+│   │   └── models/
+│   │
+│   ├── shared/
+│   │   ├── components/
+│   │   ├── directives/
+│   │   └── pipes/
+│   │
+│   ├── features/
+│   │   │
+│   │   ├── authentication/
+│   │   ├── dashboard/
+│   │   ├── payments/
+│   │   ├── accounts/
+│   │   └── users/
+│   │
+│   ├── layout/
+│   │
+│   └── app.routes.ts
+│
+├── assets/
+│
+└── styles/
+        </code></pre>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- ARCHITECTURE FLOW -->
+    <!-- ===================================================== -->
+
+    <section class="mt-20">
+
+      <h2 class="text-2xl text-white font-bold mb-6">
+        Angular Production Flow
+      </h2>
+
+      <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+        <ul class="list-disc ml-6 space-y-3 text-gray-300">
+
+          <li>
+            User → Angular Application
+          </li>
+
+          <li>
+            Router → Feature
+          </li>
+
+          <li>
+            Component → Service
+          </li>
+
+          <li>
+            Service → HttpClient
+          </li>
+
+          <li>
+            HttpClient → API Gateway
+          </li>
+
+          <li>
+            API Gateway → Microservices
+          </li>
+
+          <li>
+            Microservices → Database / Events
+          </li>
+
+          <li>
+            Response → Service → Signal / Observable
+          </li>
+
+          <li>
+            State → Component
+          </li>
+
+          <li>
+            Component → UI
+          </li>
+
+        </ul>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- BEST PRACTICES -->
+    <!-- ===================================================== -->
+
+    <section class="mt-16">
+
+      <h2 class="text-2xl text-green-400 font-bold mb-6">
+        Angular Enterprise Best Practices
+      </h2>
+
+      <div
+        class="bg-[#161b22] border border-green-900/50
+               rounded-xl p-6 text-gray-300"
+      >
+
+        <ul class="grid md:grid-cols-2 gap-3">
+
+          <li>✔ Utilizar componentes pequeños y cohesivos</li>
+
+          <li>✔ Separar features por dominio</li>
+
+          <li>✔ Evitar lógica de negocio compleja en templates</li>
+
+          <li>✔ Utilizar Signals para estado local cuando corresponda</li>
+
+          <li>✔ Utilizar RxJS para streams y operaciones asíncronas</li>
+
+          <li>✔ Utilizar OnPush cuando corresponda</li>
+
+          <li>✔ Implementar Lazy Loading</li>
+
+          <!-- <li>✔ Utilizar @defer para contenido pesado</li> -->
+
+          <li>✔ Centralizar autenticación mediante interceptors</li>
+
+          <li>✔ Implementar Route Guards</li>
+
+          <li>✔ Manejar errores HTTP de forma centralizada</li>
+
+          <li>✔ Evitar suscripciones manuales innecesarias</li>
+
+          <!-- <li>✔ Utilizar track en @for</li> -->
+
+          <li>✔ Mantener componentes desacoplados</li>
+
+          <li>✔ Utilizar interfaces y tipos fuertes</li>
+
+          <li>✔ Separar Core, Shared y Features</li>
+
+          <li>✔ Implementar testing automatizado</li>
+
+          <li>✔ Aplicar principios SOLID</li>
+
+          <li>✔ Evitar lógica duplicada</li>
+
+          <li>✔ Medir performance antes de optimizar</li>
+
+        </ul>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================== -->
+    <!-- ARCHITECT LEVEL -->
+    <!-- ===================================================== -->
+
+    <section class="mt-20">
+
+      <h2 class="text-2xl text-red-400 font-bold mb-6">
+        Architect Perspective
+      </h2>
+
+      <div class="bg-[#161b22] border border-red-900/50 rounded-xl p-6">
+
+        <p class="text-gray-300 leading-8">
+
+          Angular no debe considerarse únicamente como un framework
+          para construir interfaces. En aplicaciones empresariales,
+          debe formar parte de una arquitectura tecnológica completa,
+          integrándose con API Gateways, microservicios, sistemas de
+          identidad, observabilidad, CI/CD y plataformas cloud-native.
+
+        </p>
+
+        <p class="text-gray-300 leading-8 mt-5">
+
+          Una arquitectura Angular correctamente diseñada debe priorizar
+          separación de responsabilidades, modularidad, escalabilidad,
+          seguridad, mantenibilidad, observabilidad y experiencia de usuario.
+
+        </p>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</div>
