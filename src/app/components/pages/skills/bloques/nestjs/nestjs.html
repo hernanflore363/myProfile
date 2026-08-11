@@ -1,0 +1,329 @@
+<div class="min-h-screen bg-[#0d1117] text-gray-200 font-mono">
+
+  <!-- TOP BAR -->
+  <div class="bg-[#161b22] px-6 py-3 border-b border-gray-700 flex items-center gap-2">
+    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+
+    <span class="ml-4 text-sm text-gray-400">
+      nestjs-architecture.component.html
+    </span>
+  </div>
+
+  <div class="p-10 max-w-7xl mx-auto">
+
+    <!-- HEADER -->
+    <section class="mb-16">
+      <h1 class="text-4xl font-bold text-red-400 mb-4">
+        NestJS – Enterprise Backend Architecture
+      </h1>
+
+      <p class="text-gray-400 text-lg">
+        Guía completa para construir APIs escalables, desacopladas y orientadas a eventos usando NestJS en entornos cloud-native.
+      </p>
+    </section>
+
+    <!-- GRID -->
+    <section class="grid md:grid-cols-2 gap-10">
+
+      <!-- MODULE -->
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h2 class="text-xl text-red-400 font-semibold mb-2">
+          Module
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Unidad organizacional principal. Agrupa controladores, servicios y providers.
+        </p>
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto">
+<code>
+@Module(&#123;
+  controllers: [UserController],
+  providers: [UserService],
+&#125;)
+export class UserModule &#123;&#125;
+</code>
+</pre>
+
+        <span class="text-xs text-gray-500">
+          Use: modularización
+        </span>
+      </div>
+
+      <!-- CONTROLLER -->
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h2 class="text-xl text-cyan-400 font-semibold mb-2">
+          Controller
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Expone endpoints HTTP y maneja requests.
+        </p>
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto">
+<code>
+@Controller('users')
+export class UserController &#123;
+
+  @Get()
+  findAll() &#123;
+    return this.service.findAll()
+  &#125;
+&#125;
+</code>
+</pre>
+
+        <span class="text-xs text-gray-500">
+          Use: capa de entrada
+        </span>
+      </div>
+
+      <!-- SERVICE -->
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h2 class="text-xl text-green-400 font-semibold mb-2">
+          Service
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Contiene lógica de negocio y casos de uso.
+        </p>
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto">
+<code>
+@Injectable()
+export class UserService &#123;
+
+  findAll() &#123;
+    return []
+  &#125;
+&#125;
+</code>
+</pre>
+
+        <span class="text-xs text-gray-500">
+          Use: business logic
+        </span>
+      </div>
+
+      <!-- PROVIDERS -->
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h2 class="text-xl text-purple-400 font-semibold mb-2">
+          Providers (DI)
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Inyección de dependencias automática.
+        </p>
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto">
+<code>
+constructor(private readonly repo: UserRepo) &#123;&#125;
+</code>
+</pre>
+
+        <span class="text-xs text-gray-500">
+          Use: desacoplamiento
+        </span>
+      </div>
+
+      <!-- MIDDLEWARE -->
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h2 class="text-xl text-yellow-400 font-semibold mb-2">
+          Middleware
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Intercepta requests antes de llegar al controller.
+        </p>
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto">
+<code>
+@Injectable()
+export class LoggerMiddleware implements NestMiddleware &#123;
+  use(req, res, next) &#123;
+    console.log(req.url)
+    next()
+  &#125;
+&#125;
+</code>
+</pre>
+
+        <span class="text-xs text-gray-500">
+          Use: logging / auth
+        </span>
+      </div>
+
+      <!-- GUARDS -->
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h2 class="text-xl text-pink-400 font-semibold mb-2">
+          Guards
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Controlan acceso a endpoints (Auth / Roles).
+        </p>
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto">
+<code>
+@Injectable()
+export class AuthGuard implements CanActivate &#123;
+  canActivate() &#123;
+    return true
+  &#125;
+&#125;
+</code>
+</pre>
+
+        <span class="text-xs text-gray-500">
+          Use: seguridad
+        </span>
+      </div>
+
+      <!-- INTERCEPTORS -->
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h2 class="text-xl text-orange-400 font-semibold mb-2">
+          Interceptors
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Transforman respuestas y manejan logging/metrics.
+        </p>
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto">
+<code>
+@Injectable()
+export class LoggingInterceptor implements NestInterceptor &#123;
+  intercept(ctx, next) &#123;
+    return next.handle()
+  &#125;
+&#125;
+</code>
+</pre>
+
+        <span class="text-xs text-gray-500">
+          Use: observabilidad
+        </span>
+      </div>
+
+      <!-- FILTERS -->
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h2 class="text-xl text-red-400 font-semibold mb-2">
+          Exception Filters
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Manejo centralizado de errores.
+        </p>
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto">
+<code>
+@Catch()
+export class GlobalFilter implements ExceptionFilter &#123;
+  catch(exception, host) &#123;&#125;
+&#125;
+</code>
+</pre>
+
+        <span class="text-xs text-gray-500">
+          Use: error handling
+        </span>
+      </div>
+
+    </section>
+
+    <!-- MICROSERVICES -->
+    <section class="mt-20">
+      <h2 class="text-2xl text-white font-bold mb-6">
+        Microservices (Kafka / Events)
+      </h2>
+
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+<pre class="text-green-400 text-sm overflow-x-auto">
+<code>
+ClientsModule.register([
+  &#123;
+    name: 'KAFKA_SERVICE',
+    transport: Transport.KAFKA,
+    options: &#123;
+      client: &#123; brokers: ['localhost:9092'] &#125;,
+      consumer: &#123; groupId: 'payments' &#125;
+    &#125;
+  &#125;
+])
+</code>
+</pre>
+
+        <span class="text-xs text-gray-500">
+          Use: event-driven architecture
+        </span>
+
+      </div>
+    </section>
+
+    <!-- FOLDER STRUCTURE -->
+    <section class="mt-16">
+      <h2 class="text-2xl text-purple-400 font-bold mb-4">
+        Clean Architecture Structure
+      </h2>
+
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+
+<pre class="text-green-400 text-sm">
+<code>
+src/
+ ├── domain/
+ ├── application/
+ ├── infrastructure/
+ ├── interfaces/
+ │    ├── http/
+ │    └── events/
+</code>
+</pre>
+
+      </div>
+    </section>
+
+    <!-- FLOW -->
+    <section class="mt-20">
+      <h2 class="text-2xl text-white font-bold mb-6">
+        Production Flow
+      </h2>
+
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <ul class="list-disc ml-6 space-y-2 text-gray-300">
+          <li>Client → API Gateway (Kong)</li>
+          <li>Gateway → Controller</li>
+          <li>Guard → Auth</li>
+          <li>Interceptor → Logging / Metrics</li>
+          <li>Service → Use Case</li>
+          <li>Repository → DB</li>
+          <li>Events → Kafka</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- BEST PRACTICES -->
+    <section class="mt-16">
+      <h2 class="text-2xl text-green-400 font-bold mb-4">
+        Best Practices
+      </h2>
+
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6 text-gray-300">
+        <ul class="space-y-2">
+          <li>✔ Separar domain de infrastructure</li>
+          <li>✔ No meter lógica en controllers</li>
+          <li>✔ Usar DTOs + validation pipes</li>
+          <li>✔ Centralizar errores</li>
+          <li>✔ Usar interceptors para logs</li>
+          <li>✔ Integrar Kafka para async</li>
+          <li>✔ Versionar APIs</li>
+          <li>✔ Implementar caching (Redis)</li>
+        </ul>
+      </div>
+    </section>
+
+  </div>
+</div>

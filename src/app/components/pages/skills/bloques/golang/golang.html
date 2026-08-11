@@ -1,0 +1,271 @@
+<div class="min-h-screen bg-[#0d1117] text-gray-200 font-mono">
+
+  <!-- TOP BAR -->
+  <div class="bg-[#161b22] px-6 py-3 border-b border-gray-700 flex items-center gap-2">
+    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+
+    <span class="ml-4 text-sm text-gray-400">
+      golang-architecture.component.html
+    </span>
+  </div>
+
+  <div class="p-10 max-w-7xl mx-auto">
+
+    <!-- HEADER -->
+    <section class="mb-16">
+      <h1 class="text-4xl font-bold text-cyan-400 mb-4">
+        Golang – Production Backend Architecture
+      </h1>
+
+      <p class="text-gray-400 text-lg">
+        Guía completa para diseñar APIs escalables, concurrentes y de alto rendimiento utilizando Go en entornos cloud-native.
+      </p>
+    </section>
+
+    <!-- GRID -->
+    <section class="grid md:grid-cols-2 gap-10">
+
+      <!-- GOROUTINES -->
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h2 class="text-xl text-cyan-400 font-semibold mb-2">
+          Goroutines
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Unidad ligera de ejecución. Permite manejar miles de procesos concurrentes con bajo consumo de memoria.
+        </p>
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto">
+<code>
+go func() &#123;
+  fmt.Println("Async task")
+&#125;()
+</code>
+</pre>
+
+        <span class="text-xs text-gray-500">
+          Use: concurrencia masiva
+        </span>
+      </div>
+
+      <!-- CHANNELS -->
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h2 class="text-xl text-green-400 font-semibold mb-2">
+          Channels
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Comunicación segura entre goroutines (modelo CSP).
+        </p>
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto">
+<code>
+ch := make(chan int)
+
+go func() &#123;
+  ch <- 42
+&#125;()
+
+value := <-ch
+</code>
+</pre>
+
+        <span class="text-xs text-gray-500">
+          Use: sincronización y pipelines
+        </span>
+      </div>
+
+      <!-- HTTP SERVER -->
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h2 class="text-xl text-yellow-400 font-semibold mb-2">
+          HTTP Server
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Go incluye un servidor HTTP nativo altamente eficiente.
+        </p>
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto">
+<code>
+http.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) &#123;
+  w.Write([]byte("Hello Go"))
+&#125;)
+
+http.ListenAndServe(":8080", nil)
+</code>
+</pre>
+
+        <span class="text-xs text-gray-500">
+          Use: APIs sin frameworks pesados
+        </span>
+      </div>
+
+      <!-- CLEAN ARCHITECTURE -->
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h2 class="text-xl text-purple-400 font-semibold mb-2">
+          Clean Architecture
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Separación en capas: domain, usecases, infrastructure.
+        </p>
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto">
+<code>
+/internal
+  /domain
+  /usecase
+  /delivery
+  /repository
+</code>
+</pre>
+
+        <span class="text-xs text-gray-500">
+          Use: escalabilidad y mantenibilidad
+        </span>
+      </div>
+
+      <!-- MIDDLEWARE -->
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h2 class="text-xl text-pink-400 font-semibold mb-2">
+          Middleware
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Interceptores para logging, auth, metrics.
+        </p>
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto">
+<code>
+func Logging(next http.Handler) http.Handler &#123;
+  return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) &#123;
+    log.Println(r.URL.Path)
+    next.ServeHTTP(w, r)
+  &#125;)
+&#125;
+</code>
+</pre>
+
+        <span class="text-xs text-gray-500">
+          Use: cross-cutting concerns
+        </span>
+      </div>
+
+      <!-- DATABASE -->
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h2 class="text-xl text-orange-400 font-semibold mb-2">
+          Database Access
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Uso eficiente de conexiones con database/sql o ORM ligero.
+        </p>
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto">
+<code>
+db, _ := sql.Open("postgres", conn)
+
+rows, _ := db.Query("SELECT * FROM users")
+</code>
+</pre>
+
+        <span class="text-xs text-gray-500">
+          Use: alto rendimiento en queries
+        </span>
+      </div>
+
+      <!-- CONTEXT -->
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h2 class="text-xl text-red-400 font-semibold mb-2">
+          Context
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Control de cancelación, timeouts y trazabilidad.
+        </p>
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto">
+<code>
+ctx, cancel := context.WithTimeout(
+  context.Background(), 2*time.Second,
+)
+defer cancel()
+</code>
+</pre>
+
+        <span class="text-xs text-gray-500">
+          Use: resiliencia y control
+        </span>
+      </div>
+
+      <!-- WORKERS -->
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h2 class="text-xl text-indigo-400 font-semibold mb-2">
+          Worker Pool
+        </h2>
+
+        <p class="text-gray-400 mb-4">
+          Procesamiento concurrente controlado.
+        </p>
+
+<pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto">
+<code>
+jobs := make(chan int, 100)
+
+for w := 0; w < 5; w++ &#123;
+  go worker(jobs)
+&#125;
+</code>
+</pre>
+
+        <span class="text-xs text-gray-500">
+          Use: procesamiento paralelo
+        </span>
+      </div>
+
+    </section>
+
+    <!-- FLOW -->
+    <section class="mt-20">
+      <h2 class="text-2xl text-white font-bold mb-6">
+        Production Flow
+      </h2>
+
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <ul class="list-disc ml-6 space-y-2 text-gray-300">
+          <li>Client → API Gateway</li>
+          <li>Gateway → Go HTTP Server</li>
+          <li>Middleware → Auth / Logging</li>
+          <li>Handler → UseCase Layer</li>
+          <li>UseCase → Repository</li>
+          <li>Repository → Database / Cache</li>
+          <li>Async → Worker / Kafka</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- BEST PRACTICES -->
+    <section class="mt-16">
+      <h2 class="text-2xl text-green-400 font-bold mb-4">
+        Best Practices
+      </h2>
+
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6 text-gray-300">
+        <ul class="space-y-2">
+          <li>✔ Usar context en todas las operaciones</li>
+          <li>✔ Evitar frameworks pesados</li>
+          <li>✔ Manejar errores explícitamente</li>
+          <li>✔ Usar interfaces para desacoplar</li>
+          <li>✔ Implementar timeouts y retries</li>
+          <li>✔ Logging estructurado (zap/logrus)</li>
+          <li>✔ Usar pools de conexiones</li>
+          <li>✔ Integrar con Kafka para async</li>
+          <li>✔ Mantener servicios pequeños (microservices)</li>
+        </ul>
+      </div>
+    </section>
+
+  </div>
+</div>
