@@ -1,4 +1,4 @@
-<section class="py-32 px-6 text-center">
+<section class="py-16 px-6 text-center">
   <!-- backdrop -->
   @if (isOpen) {
     <div class="fixed inset-0 bg-black/40 backdrop-blur-sm flex justify-center z-50 overflow-y-auto">
@@ -30,16 +30,13 @@
                 <app-argo-cd/>
               }
             </p>
-
             <button class="bg-white/30 px-4 py-2 rounded-lg" (click)="close()">
               Cerrar
             </button>
       </div>
     </div>
   }
-
-  --
-
+  <!-- -- -->
   <h2 class="text-4xl font-semibold">
     Skills
   </h2>
@@ -47,175 +44,128 @@
     Experiencia en desarrollo de aplicaciones web y móviles,
     con un enfoque en la arquitectura de software y la
     integración de sistemas.
+  </p>
   <div class="grid md:grid-cols-3 gap-12 mt-16 max-w-6xl mx-auto">
-
     <!-- CARD -->
     <div class="group relative p-8 bg-white/5 rounded-xl overflow-hidden
                 border border-white/10 hover:border-purple-400/40
                 transition duration-300 hover:-translate-y-2">
-
       <!-- Glow -->
       <div class="absolute inset-0 opacity-0 group-hover:opacity-100
                   bg-gradient-to-br from-purple-500/10 to-blue-500/10
                   transition"></div>
-
       <!-- Icons -->
-      <!-- <div class="flex justify-center gap-5 mb-6 relative z-10">
-        <img src="./images/logos/angular.png" class="w-12 h-12 transition 
-                    hover:scale-140 rounded-lg
-                    hover:ring-2 hover:ring-red-600 
-                    hover:shadow-lg hover:shadow-red-500/50
-                    hover:ring-offset-2 
-                    hover:ring-offset-gray-900"
-          (click)="open('angular')">
-        <img src="./images/logos/react.png" class="w-12 h-12 transition hover:scale-140 hover:border-2 hover:border-blue-400 rounded-lg">
-        <img src="./images/logos/vue.png" class="w-12 h-12 transition hover:scale-140 hover:border-2 hover:border-blue-400 rounded-lg">
-        <img src="./images/logos/ionic.png" class="w-12 h-12 transition hover:scale-140 hover:border-2 hover:border-blue-400 rounded-lg">
-      </div> -->
       <div class="flex justify-center gap-5 mb-6 relative z-10">
-
-  <!-- Angular -->
-  <img src="./images/logos/angular.png"
-       class="w-12 h-12 rounded-lg cursor-pointer transition
-              hover:scale-125
-              hover:ring-2 hover:ring-red-600
-              hover:ring-offset-2 hover:ring-offset-gray-900
-              hover:shadow-lg hover:shadow-red-500/50"
-       (click)="open('angular')">
-
-  <!-- React -->
-    <img src="./images/logos/react.png"
-        class="w-12 h-12 rounded-lg cursor-pointer transition
-                hover:scale-125
-                hover:ring-2 hover:ring-cyan-400
-                hover:ring-offset-2 hover:ring-offset-gray-900
-                hover:shadow-lg hover:shadow-cyan-400/50">
-
-    <!-- Vue -->
-    <img src="./images/logos/vue.png"
-        class="w-12 h-12 rounded-lg cursor-pointer transition
-                hover:scale-125
-                hover:ring-2 hover:ring-green-400
-                hover:ring-offset-2 hover:ring-offset-gray-900
-                hover:shadow-lg hover:shadow-green-400/50">
-
-    <!-- Ionic -->
-    <img src="./images/logos/ionic.png"
-        class="w-12 h-12 rounded-lg cursor-pointer transition
-                hover:scale-125
-                hover:ring-2 hover:ring-blue-500
-                hover:ring-offset-2 hover:ring-offset-gray-900
-                hover:shadow-lg hover:shadow-blue-500/50">
-
-    </div>
-
+        <!-- Angular -->
+        <img src="./images/logos/angular.png"
+            class="w-12 h-12 rounded-lg cursor-pointer transition
+                    hover:scale-125
+                    hover:ring-2 hover:ring-red-600
+                    hover:ring-offset-2 hover:ring-offset-gray-900
+                    hover:shadow-lg hover:shadow-red-500/50"
+            (click)="open('angular')">
+        <!-- React -->
+          <img src="./images/logos/react.png"
+              class="w-12 h-12 rounded-lg cursor-pointer transition
+                      hover:scale-125
+                      hover:ring-2 hover:ring-cyan-400
+                      hover:ring-offset-2 hover:ring-offset-gray-900
+                      hover:shadow-lg hover:shadow-cyan-400/50">
+          <!-- Vue -->
+          <img src="./images/logos/vue.png"
+              class="w-12 h-12 rounded-lg cursor-pointer transition
+                      hover:scale-125
+                      hover:ring-2 hover:ring-green-400
+                      hover:ring-offset-2 hover:ring-offset-gray-900
+                      hover:shadow-lg hover:shadow-green-400/50">
+          <!-- Ionic -->
+          <img src="./images/logos/ionic.png"
+              class="w-12 h-12 rounded-lg cursor-pointer transition
+                      hover:scale-125
+                      hover:ring-2 hover:ring-blue-500
+                      hover:ring-offset-2 hover:ring-offset-gray-900
+                      hover:shadow-lg hover:shadow-blue-500/50">
+      </div>
       <h3 class="text-xl font-medium relative z-10">
         Frontend
       </h3>
-
       <p class="text-gray-400 mt-3 relative z-10">
-        Angular (Signals), arquitectura modular,
-        WebSockets, optimización de rendimiento y reutilización
-        de componentes.
-        </p>
-
+        Angular (Signals), arquitectura modular, WebSockets, optimización de rendimiento y reutilización de componentes.
+      </p>
     </div>
-
     <!-- Backend -->
     <div class="group relative p-8 bg-white/5 rounded-xl overflow-hidden
-                border border-white/10 hover:border-blue-400/40
-                transition duration-300 hover:-translate-y-2">
-
+              border border-white/10 hover:border-blue-400/40
+              transition duration-300 hover:-translate-y-2">
       <div class="absolute inset-0 opacity-0 group-hover:opacity-100
                   bg-gradient-to-br from-blue-500/10 to-cyan-500/10
                   transition"></div>
-
       <div class="flex justify-center gap-5 mb-6 relative z-10">
-
-  <!-- Node -->
-  <img src="./images/logos/node.png"
-       class="w-12 h-12 rounded-lg cursor-pointer transition
-              hover:scale-125
-              hover:ring-2 hover:ring-green-500
-              hover:ring-offset-2 hover:ring-offset-gray-900
-              hover:shadow-lg hover:shadow-green-500/50">
-
-  <!-- NestJS -->
-  <img src="./images/logos/nestjs.png"
-       class="w-12 h-12 rounded-lg cursor-pointer transition
-              hover:scale-125
-              hover:ring-2 hover:ring-red-500
-              hover:ring-offset-2 hover:ring-offset-gray-900
-              hover:shadow-lg hover:shadow-red-500/50"
-       (click)="open('nestjs')">
-
-  <!-- Golang -->
-  <img src="./images/logos/golang.png"
-       class="w-12 h-12 rounded-lg cursor-pointer transition
-              hover:scale-125
-              hover:ring-2 hover:ring-cyan-400
-              hover:ring-offset-2 hover:ring-offset-gray-900
-              hover:shadow-lg hover:shadow-cyan-400/50"
-       (click)="open('golang')">
-
-  <!-- Spring -->
-  <img src="./images/logos/spring.png"
-       class="w-12 h-12 rounded-lg cursor-pointer transition
-              hover:scale-125
-              hover:ring-2 hover:ring-green-600
-              hover:ring-offset-2 hover:ring-offset-gray-900
-              hover:shadow-lg hover:shadow-green-600/50">
-
-  </div>
-
+        <!-- Node -->
+        <img src="./images/logos/node.png"
+            class="w-12 h-12 rounded-lg cursor-pointer transition
+                    hover:scale-125
+                    hover:ring-2 hover:ring-green-500
+                    hover:ring-offset-2 hover:ring-offset-gray-900
+                    hover:shadow-lg hover:shadow-green-500/50">
+        <!-- NestJS -->
+        <img src="./images/logos/nestjs.png"
+            class="w-12 h-12 rounded-lg cursor-pointer transition
+                    hover:scale-125
+                    hover:ring-2 hover:ring-red-500
+                    hover:ring-offset-2 hover:ring-offset-gray-900
+                    hover:shadow-lg hover:shadow-red-500/50"
+            (click)="open('nestjs')">
+        <!-- Golang -->
+        <img src="./images/logos/golang.png"
+            class="w-12 h-12 rounded-lg cursor-pointer transition
+                    hover:scale-125
+                    hover:ring-2 hover:ring-cyan-400
+                    hover:ring-offset-2 hover:ring-offset-gray-900
+                    hover:shadow-lg hover:shadow-cyan-400/50"
+            (click)="open('golang')">
+        <!-- Spring -->
+        <img src="./images/logos/spring.png"
+            class="w-12 h-12 rounded-lg cursor-pointer transition
+                    hover:scale-125
+                    hover:ring-2 hover:ring-green-600
+                    hover:ring-offset-2 hover:ring-offset-gray-900
+                    hover:shadow-lg hover:shadow-green-600/50">
+      </div>
       <h3 class="text-xl font-medium relative z-10">
         Backend
       </h3>
-
       <p class="text-gray-400 mt-3 relative z-10">
-        Node.js y Golang, diseño de APIs REST/gRPC,
-        microservicios y alta concurrencia.
+        Node.js y Golang, diseño de APIs REST/gRPC, microservicios y alta concurrencia.
       </p>
-
     </div>
-
     <!-- Arquitectura -->
     <div class="group relative p-8 bg-white/5 rounded-xl overflow-hidden
                 border border-white/10 hover:border-pink-400/40
                 transition duration-300 hover:-translate-y-2">
-
       <div class="absolute inset-0 opacity-0 group-hover:opacity-100
                   bg-gradient-to-br from-pink-500/10 to-purple-500/10
                   transition"></div>
-
       <div class="flex justify-center gap-5 mb-6 relative z-10">
         <img src="./images/logos/Ea.png" class="w-12 h-12 transition hover:scale-140 hover:border-2 hover:border-blue-400 rounded-lg">
         <img src="./images/logos/microservicio.png" class="w-12 h-12 transition hover:scale-140 hover:border-2 hover:border-blue-400 rounded-lg">
         <img src="./images/logos/drawio.png" class="w-12 h-12 transition hover:scale-140 hover:border-2 hover:border-blue-400 rounded-lg">
       </div>
-
       <h3 class="text-xl font-medium relative z-10">
         Arquitectura
       </h3>
-
       <p class="text-gray-400 mt-3 relative z-10">
-        Microservicios, Event-Driven Architecture,
-        CQRS y patrones de resiliencia.
+        Microservicios, Event-Driven Architecture, CQRS y patrones de resiliencia.
       </p>
-
     </div>
-
     <!-- Integración -->
     <div class="group relative p-8 bg-white/5 rounded-xl overflow-hidden
                 border border-white/10 hover:border-yellow-400/40
                 transition duration-300 hover:-translate-y-2">
-
       <div class="absolute inset-0 opacity-0 group-hover:opacity-100
                   bg-gradient-to-br from-yellow-500/10 to-orange-500/10
                   transition"></div>
-
       <div class="flex justify-center gap-5 mb-6 relative z-10">
-
         <!-- Kafka -->
         <img src="./images/logos/apache-kafka.png"
             class="w-12 h-12 rounded-lg cursor-pointer transition
@@ -224,7 +174,6 @@
                     hover:ring-offset-2 hover:ring-offset-gray-900
                     hover:shadow-lg hover:shadow-gray-400/40"
             (click)="open('kafka')">
-
         <!-- Redis -->
         <img src="./images/logos/redis.png"
             class="w-12 h-12 rounded-lg cursor-pointer transition
@@ -233,7 +182,6 @@
                     hover:ring-offset-2 hover:ring-offset-gray-900
                     hover:shadow-lg hover:shadow-red-500/50"
             (click)="open('redis')">
-
         <!-- Kong -->
         <img src="./images/logos/kong.png"
             class="w-12 h-12 rounded-lg cursor-pointer transition
@@ -241,31 +189,22 @@
                     hover:ring-2 hover:ring-green-400
                     hover:ring-offset-2 hover:ring-offset-gray-900
                     hover:shadow-lg hover:shadow-green-400/50">
-
       </div>
-
       <h3 class="text-xl font-medium relative z-10">
         Integración
       </h3>
-
-      <p class="text-gray-400 mt-3 relative z-10">
-        Kafka, Redis, APIs seguras e interoperabilidad
-        entre sistemas empresariales.
+      <p class="text-gray-400 mt-3 relative z-10"> 
+        Kafka, Redis, APIs seguras e interoperabilidad entre sistemas empresariales.
       </p>
-
     </div>
-
     <!-- DevOps -->
     <div class="group relative p-8 bg-white/5 rounded-xl overflow-hidden
                 border border-white/10 hover:border-green-400/40
                 transition duration-300 hover:-translate-y-2">
-
       <div class="absolute inset-0 opacity-0 group-hover:opacity-100
                   bg-gradient-to-br from-green-500/10 to-emerald-500/10
                   transition"></div>
-
       <div class="flex justify-center gap-5 mb-6 relative z-10">
-
         <!-- Docker -->
         <img src="./images/logos/docker.png"
             class="w-12 h-12 rounded-lg cursor-pointer transition
@@ -274,7 +213,6 @@
                     hover:ring-offset-2 hover:ring-offset-gray-900
                     hover:shadow-lg hover:shadow-blue-400/50"
             (click)="open('docker')">
-
         <!-- Kubernetes -->
         <img src="./images/logos/k8s.png"
             class="w-12 h-12 rounded-lg cursor-pointer transition
@@ -283,7 +221,6 @@
                     hover:ring-offset-2 hover:ring-offset-gray-900
                     hover:shadow-lg hover:shadow-indigo-500/50"
             (click)="open('k8s')">
-
         <!-- ArgoCD -->
         <img src="./images/logos/argo-cd.png"
             class="w-12 h-12 rounded-lg cursor-pointer transition
@@ -292,44 +229,32 @@
                     hover:ring-offset-2 hover:ring-offset-gray-900
                     hover:shadow-lg hover:shadow-orange-500/50"
             (click)="open('argo-cd')">
-
       </div>
-
       <h3 class="text-xl font-medium relative z-10">
         DevOps & Cloud
       </h3>
-
       <p class="text-gray-400 mt-3 relative z-10">
         Docker, Kubernetes, CI/CD y despliegues automatizados.
       </p>
-
     </div>
-
     <!-- Observabilidad -->
     <div class="group relative p-8 bg-white/5 rounded-xl overflow-hidden
                 border border-white/10 hover:border-indigo-400/40
                 transition duration-300 hover:-translate-y-2">
-
       <div class="absolute inset-0 opacity-0 group-hover:opacity-100
                   bg-gradient-to-br from-indigo-500/10 to-purple-500/10
                   transition"></div>
-
       <div class="flex justify-center gap-5 mb-6 relative z-10">
         <img src="./images/logos/grafana.png" class="w-12 h-12 transition hover:scale-140 hover:border-2 hover:border-blue-400 rounded-lg">
         <img src="./images/logos/kibana.png" class="w-12 h-12 transition hover:scale-140 hover:border-2 hover:border-blue-400 rounded-lg">
         <img src="./images/logos/zabbix.png" class="w-12 h-12 transition hover:scale-140 hover:border-2 hover:border-blue-400 rounded-lg">
       </div>
-
       <h3 class="text-xl font-medium relative z-10">
         Observabilidad
       </h3>
-
       <p class="text-gray-400 mt-3 relative z-10">
         Métricas, logs y monitoreo de sistemas en producción.
       </p>
-
     </div>
-
   </div>
-
 </section>
