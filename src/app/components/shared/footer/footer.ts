@@ -6,4 +6,6 @@ import { Component } from '@angular/core';
   templateUrl: './footer.html',
   styleUrl: './footer.css',
 })
-export default class Footer {}
+export default class Footer {
+  year: number = new Date().getFullYear();
+}

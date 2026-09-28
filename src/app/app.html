@@ -1,3 +1,9 @@
-<app-navbar/>
-<router-outlet />
+<!-- src/app/app.component.html -->
+<div class="min-h-screen flex flex-col">
+    <app-navbar/>
+
+    <main class="flex-grow">
+        <router-outlet />
+    </main>
 <app-footer/>
+</div>
