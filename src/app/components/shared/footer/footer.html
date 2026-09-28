@@ -1,1 +1,113 @@
-<p>footer works!</p>
+<!-- src/app/footer/footer.component.html -->
+<footer class="mt-auto bg-gradient-to-r from-sky-900 via-slate-900 to-gray-900 text-slate-100">
+  <div class="max-w-7xl mx-auto px-6 py-10 md:py-12">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
+      <!-- Branding + Info -->
+      <div class="space-y-4">
+        <div class="flex items-center gap-3">
+          <!-- Logo simple (svg) -->
+          <div class="w-10 h-10 rounded-md bg-gradient-to-br from-emerald-400 to-sky-500 flex items-center justify-center">
+            <span class="font-semibold text-slate-900">HF</span>
+          </div>
+          <div>
+            <h3 class="text-lg font-semibold">Hernán Flores Ramírez</h3>
+            <p class="text-sm text-slate-300">Arquitectura de Software · Plataformas · APIs · Kubernetes · Observability</p>
+          </div>
+        </div>
+
+        <p class="text-sm text-slate-300 leading-relaxed max-w-md">
+          Diseño y gobernanza de APIs, plataformas cloud-native y soluciones escalables para entornos financieros y de alta carga..
+        </p>
+
+        <ul class="text-sm text-slate-300 space-y-1">
+          <li><strong>Ubicación:</strong> Santa Cruz, Bolivia</li>
+          <li><strong>Email:</strong> <a class="text-emerald-300 hover:underline" href="mailto:hernanfloresramirez1987@gmail.com">hernanfloresramirez1987@gmail.com</a></li>
+          <li><strong>Servicios:</strong> Consultoría por proyecto / asesoría por hora</li>
+        </ul>
+      </div>
+
+      <!-- Quick links (servicios enfocados) -->
+      <nav aria-label="Servicios principales" class="flex flex-col space-y-3">
+        <h4 class="text-sm font-semibold text-slate-100">Servicios destacados</h4>
+        <div class="grid grid-cols-2 gap-2 text-sm text-slate-300">
+          <a href="#arquitectura" class="hover:text-white/90 transition">Arquitectura Empresarial</a>
+          <a href="#apis" class="hover:text-white/90 transition">Diseño OpenAPI</a>
+          <a href="#k8s" class="hover:text-white/90 transition">Kubernetes & GitOps</a>
+          <a href="#cloud" class="hover:text-white/90 transition">Migración a Cloud (AWS)</a>
+          <a href="#observability" class="hover:text-white/90 transition">Observabilidad & Tracing</a>
+          <a href="#performance" class="hover:text-white/90 transition">Performance Engineering</a>
+        </div>
+
+        <h4 class="text-sm font-semibold text-slate-100 mt-4">Enlaces útiles</h4>
+        <div class="grid grid-cols-2 gap-2 text-sm text-slate-300">
+          <a href="/proyectos" class="hover:text-white/90 transition">Proyectos</a>
+          <a href="/servicios" class="hover:text-white/90 transition">Servicios</a>
+          <a href="/cv" class="hover:text-white/90 transition">Descargar CV</a>
+          <a href="#contacto" class="hover:text-white/90 transition">Contacto</a>
+        </div>
+      </nav>
+
+      <!-- Newsletter / Social / CTA -->
+      <div class="space-y-4">
+        <h4 class="text-sm font-semibold text-slate-100">¿Necesitas ayuda con arquitectura?</h4>
+
+        <a
+          class="inline-flex items-center gap-2 bg-amber-500 text-slate-900 font-semibold py-2 px-4 rounded-md shadow-md hover:scale-[1.02] transform transition"
+          href="mailto:hernan@example.com?subject=Consultoría%20Arquitectura"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+          Solicita consultoría
+        </a>
+
+        <form>
+          <input
+            type="email"
+            name="email"
+            required
+            placeholder="tu@email.com"
+            class="flex-1 rounded-md px-3 py-2 text-slate-800 focus:outline-none"
+            aria-label="Correo para suscripción"
+          />
+          <button type="submit" class="rounded-md px-4 py-2 bg-emerald-500 text-slate-900 font-semibold hover:scale-[1.02] transform transition">
+            Suscribir
+          </button>
+        </form>
+
+        <div class="pt-2">
+          <p class="text-sm text-slate-300 mb-2">Sígueme</p>
+          <div class="flex gap-3">
+            <a aria-label="GitHub" href="https://github.com/hernanflore363" target="_blank" rel="noopener" class="p-2 rounded-md bg-white/5 hover:bg-white/10 transition transform hover:-translate-y-1">
+              <!-- GitHub SVG minimal -->
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a12 12 0 00-3.8 23.4c..."/></svg>
+            </a>
+            <a aria-label="LinkedIn" href="https://www.linkedin.com/in/hernanflore363" target="_blank" rel="noopener" class="p-2 rounded-md bg-white/5 hover:bg-white/10 transition transform hover:-translate-y-1">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5..."/></svg>
+            </a>
+            <a aria-label="Descargar CV" href="/assets/CV-Hernan-Flores.pdf" target="_blank" rel="noopener" class="p-2 rounded-md bg-white/5 hover:bg-white/10 transition transform hover:-translate-y-1">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M14 2H6..."/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="mt-8 border-t border-slate-800 pt-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <p class="text-xs text-slate-400">
+        © {{ year }} Hernán Flores Ramírez · Arquitectura & Plataformas · Santa Cruz, Bolivia
+      </p>
+
+      <div class="flex items-center gap-4 text-xs text-slate-300">
+        <a href="/terminos" class="hover:text-white/90 transition">Términos</a>
+        <a href="/privacidad" class="hover:text-white/90 transition">Privacidad</a>
+        <a href="/mapa" class="hover:text-white/90 transition flex items-center gap-2">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2..."/></svg>
+          Ver mapa
+        </a>
+      </div>
+    </div>
+  </div>
+</footer>
