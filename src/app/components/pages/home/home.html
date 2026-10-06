@@ -5,9 +5,9 @@
     <div class="flex justify-center md:justify-end">
       <div class="w-48 h-48 md:w-72 md:h-72 rounded-full overflow-hidden border border-gray-700 shadow-lg">
         <img 
-          src="./images/yo.jpg" 
+          src="./images/yo.png" 
           alt="Hernán Flores Ramírez"
-          class="w-full h-full object-cover"
+          class="w-full md:w-75 h-full md:h-75 object-cover"
         />
       </div>
     </div>
@@ -39,3 +39,184 @@
 
   </div>
 </section>
+
+
+
+
+
+<div class="min-h-screen bg-gray-50 text-gray-800 font-sans">
+  
+  <!-- BARRA SUPERIOR DE CONTACTO -->
+  <div class="bg-avitem-petroleo text-white text-xs py-2 px-4 md:px-8 flex flex-col md:flex-row justify-between items-center gap-2 border-b border-avitem-turquesa/30">
+    <div class="flex flex-wrap justify-center gap-4">
+      <span class="flex items-center gap-1">📍 Calle Junín #401, Potosí, Bolivia</span>
+      <span class="flex items-center gap-1">📞 Telf: +591 2 6223344</span>
+    </div>
+    <div class="flex gap-4">
+      <span>⏰ Lun-Vie 8:00-18:00 | Sáb 8:00-13:00</span>
+      <a href="#" class="hover:text-avitem-turquesa transition">Contacto</a>
+    </div>
+  </div>
+
+  <!-- NAVIGATION BAR (HEADER) -->
+  <header class="bg-white shadow-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <!-- Logo Container -->
+      <div class="flex flex-col items-start">
+        <div class="flex items-baseline gap-1">
+          <span class="text-2xl font-black text-avitem-turquesa tracking-tight">▲ AVITEM</span>
+          <span class="text-xs font-bold text-avitem-petroleo tracking-widest block">IMPORTACIONES</span>
+        </div>
+        <span class="text-[9px] italic text-gray-500 font-medium">construyendo tus sueños</span>
+      </div>
+
+      <!-- Menú de Navegación -->
+      <nav class="hidden lg:flex space-x-8 font-semibold text-sm text-avitem-petroleo">
+        <a href="#" class="text-avitem-turquesa border-b-2 border-avitem-turquesa pb-1">Inicio</a>
+        <a href="#" class="hover:text-avitem-turquesa transition pb-1">Materiales</a>
+        <a href="#" class="hover:text-avitem-turquesa transition pb-1">Policarbonatos</a>
+        <a href="#" class="hover:text-avitem-turquesa transition pb-1">Importaciones</a>
+        <a href="#" class="hover:text-avitem-turquesa transition pb-1">Ubicación</a>
+      </nav>
+
+      <!-- Buscador y Carrito -->
+      <div class="flex items-center gap-4">
+        <div class="relative hidden sm:block">
+          <input type="text" placeholder="Buscar productos..." class="w-48 xl:w-64 pl-3 pr-8 py-1.5 bg-gray-100 text-xs rounded-lg focus:outline-none focus:ring-1 focus:ring-avitem-turquesa">
+          <span class="absolute right-2.5 top-2 text-gray-400 text-xs">🔍</span>
+        </div>
+        <button class="relative p-2 text-avitem-petroleo hover:text-avitem-turquesa transition">
+          <span class="text-xl">🛒</span>
+          <span class="absolute top-0 right-0 bg-avitem-turquesa text-white text-[10px] w-4 h-4 rounded-full flex items-center justify-center font-bold">Bs. 0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- BANNER PRINCIPAL (HERO SECTION) -->
+  <!-- Nota: Reemplaza la URL de fondo por tu renderizado o foto real del Cerro Rico de Potosí -->
+  <section class="relative bg-gradient-to-r from-avitem-petroleo/90 to-avitem-petroleo/60 text-white overflow-hidden min-h-[450px] flex items-center">
+    <div class="absolute inset-0 z-0 bg-cover bg-center mix-blend-overlay opacity-40" style="background-image: url('assets/images/cerro-rico-potosi.jpg');"></div>
+    
+    <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 flex flex-col md:flex-row items-center justify-between gap-12 w-full">
+      <div class="max-w-2xl text-center md:text-left">
+        <span class="bg-avitem-turquesa/20 text-avitem-turquesa font-bold text-xs uppercase tracking-widest px-3 py-1 rounded-full border border-avitem-turquesa/30">Líderes en Potosí</span>
+        <h1 class="text-3xl md:text-5xl font-black mt-4 leading-tight">
+          ¡AVITEM IMPORTACIONES:<br><span class="text-avitem-turquesa">TU ALIADO EN CONSTRUCCIÓN!</span>
+        </h1>
+        <p class="text-base text-gray-200 mt-4 font-light max-w-xl">
+          Materiales de Calidad, Estructuras Duraderas y Policarbonato de alta resistencia para todos tus proyectos arquitectónicos en la Villa Imperial.
+        </p>
+        <div class="mt-8 flex flex-wrap justify-center md:justify-start gap-4">
+          <button class="bg-avitem-turquesa hover:bg-avitem-turquesa/90 text-white font-bold px-6 py-3 rounded-lg shadow-lg shadow-avitem-turquesa/20 transition transform hover:-translate-y-0.5">
+            VER CATÁLOGO ONLINE
+          </button>
+          <button class="bg-white/10 hover:bg-white/20 text-white font-semibold px-6 py-3 rounded-lg border border-white/30 transition">
+            Cotizar por WhatsApp
+          </button>
+        </div>
+      </div>
+
+      <!-- Imagen Destacada del Banner (Flotante) -->
+      <div class="w-full max-w-sm bg-white/10 backdrop-blur-md p-6 rounded-2xl border border-white/20 hidden md:block">
+        <div class="bg-white rounded-xl p-4 shadow-xl">
+          <span class="text-xs font-bold text-avitem-turquesa block mb-1">Especialidad de la Casa</span>
+          <h3 class="text-avitem-petroleo font-bold text-lg mb-3">Policarbonato Alveolar</h3>
+          <div class="aspect-video bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 text-xs mb-3">
+             [Imagen Policarbonato Premium]
+          </div>
+          <p class="text-xs text-gray-500">Máxima protección UV y resistencia al clima extremo potosino.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORÍAS PRINCIPALES -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 -mt-8 relative z-20">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      
+      <div class="bg-white p-5 rounded-xl shadow-md border-b-4 border-avitem-turquesa hover:shadow-lg transition cursor-pointer flex flex-col items-center text-center">
+        <span class="text-3xl mb-2">🏢</span>
+        <h4 class="font-bold text-sm text-avitem-petroleo">POLICARBONATO</h4>
+        <p class="text-[11px] text-gray-500 mt-1">Techos y Coberturas</p>
+      </div>
+
+      <div class="bg-white p-5 rounded-xl shadow-md border-b-4 border-avitem-gris hover:shadow-lg transition cursor-pointer flex flex-col items-center text-center">
+        <span class="text-3xl mb-2">🏗️</span>
+        <h4 class="font-bold text-sm text-avitem-petroleo">ACERO Y HIERRO</h4>
+        <p class="text-[11px] text-gray-500 mt-1">Varillas y Vigas de Calidad</p>
+      </div>
+
+      <div class="bg-white p-5 rounded-xl shadow-md border-b-4 border-avitem-turquesa hover:shadow-lg transition cursor-pointer flex flex-col items-center text-center">
+        <span class="text-3xl mb-2">🧱</span>
+        <h4 class="font-bold text-sm text-avitem-petroleo">CEMENTO Y HORMIGÓN</h4>
+        <p class="text-[11px] text-gray-500 mt-1">Las mejores marcas del país</p>
+      </div>
+
+      <div class="bg-white p-5 rounded-xl shadow-md border-b-4 border-avitem-petroleo hover:shadow-lg transition cursor-pointer flex flex-col items-center text-center">
+        <span class="text-3xl mb-2">🛠️</span>
+        <h4 class="font-bold text-sm text-avitem-petroleo">HERRAMIENTAS</h4>
+        <p class="text-[11px] text-gray-500 mt-1">Accesorios Profesionales</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- OFERTAS DESTACADAS -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="flex justify-between items-end mb-8">
+      <div>
+        <span class="text-xs font-bold text-avitem-turquesa uppercase tracking-wider">Ahorra en tu obra</span>
+        <h2 class="text-2xl font-black text-avitem-petroleo mt-1">OFERTAS DESTACADAS</h2>
+      </div>
+      <a href="#" class="text-sm font-semibold text-avitem-turquesa hover:underline">Ver todas las ofertas →</a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <!-- Producto 1 -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
+        <div class="p-4 bg-avitem-claro aspect-video flex items-center justify-center text-gray-400 text-xs">
+          [Imagen: Policarbonato Alveolar 10mm]
+        </div>
+        <div class="p-5">
+          <h3 class="font-bold text-avitem-petroleo text-base">Policarbonato Alveolar 10mm</h3>
+          <p class="text-xs text-gray-500 mt-1">Alta transparencia y flexibilidad estructural.</p>
+          <div class="mt-4 flex items-center justify-between">
+            <span class="text-xl font-black text-avitem-turquesa">Bs. 350</span>
+            <button class="bg-avitem-petroleo hover:bg-avitem-turquesa text-white text-xs font-bold px-4 py-2 rounded transition">
+              Añadir al Carrito
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Producto 2 -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
+        <div class="p-4 bg-avitem-claro aspect-video flex items-center justify-center text-gray-400 text-xs">
+          [Imagen: Cemento Estructural Nacional]
+        </div>
+        <div class="p-5">
+          <h3 class="font-bold text-avitem-petroleo text-base">Cemento Alta Resistencia</h3>
+          <p class="text-xs text-gray-500 mt-1">Ideal para vaciados estables de losas y columnas.</p>
+          <div class="mt-4 flex items-center justify-between">
+            <span class="text-xl font-black text-avitem-turquesa">Bs. 55</span>
+            <button class="bg-avitem-petroleo hover:bg-avitem-turquesa text-white text-xs font-bold px-4 py-2 rounded transition">
+              Añadir al Carrito
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Producto 3 -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
+        <div class="p-4 bg-avitem-claro aspect-video flex items-center justify-center text-gray-400 text-xs">
+          [Imagen: Fierro de Construcción]
+        </div>
+        <div class="p-5">
+          <h3 class="font-bold text-avitem-petroleo text-base">Hierro de Construcción (Corrugado)</h3>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
