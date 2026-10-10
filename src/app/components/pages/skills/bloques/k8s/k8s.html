@@ -346,7 +346,7 @@ kubectl rollout undo deployment/backend -n dev</code></pre><p class="text-sm tex
 <tr class="border-t border-gray-700"><td class="p-4 text-orange-300">Service sin tráfico</td><td class="p-4">No encuentra endpoints saludables.</td><td class="p-4">Selector, labels y readinessProbe.</td></tr>
 </tbody></table></div></section>
 
-<section id="buenas-practicas" class="mb-14"><h2 class="text-2xl md:text-3xl font-bold text-green-300 mb-5">07 · Buenas prácticas para producción</h2><div class="grid md:grid-cols-2 gap-5">
+<section id="buenas-practicas" class="mb-14"><h2 class="text-2xl md:text-3xl font-bold text-green-300 mb-5">07 · Buenas prácticas para producción</h2><div class="grid md:grid-cols-2 gap-5 text-left">
 <article class="panel p-5"><h3 class="font-semibold text-green-200 mb-3">Operación y resiliencia</h3><ul class="space-y-2 text-sm text-gray-300"><li>✓ Usa Deployments para servicios stateless.</li><li>✓ Define requests, limits y probes apropiadas.</li><li>✓ Usa readinessProbe para controlar cuándo recibir tráfico.</li><li>✓ Observa logs, métricas, eventos y alertas.</li><li>✓ Planifica réplicas y estrategia de rollout.</li></ul></article>
 <article class="panel p-5"><h3 class="font-semibold text-green-200 mb-3">Seguridad y cambios</h3><ul class="space-y-2 text-sm text-gray-300"><li>✓ Aplica RBAC con privilegios mínimos.</li><li>✓ No guardes credenciales reales en Git.</li><li>✓ Base64 no es cifrado.</li><li>✓ Usa imágenes versionadas y escaneadas.</li><li>✓ Revisa diff, contexto y namespace antes de aplicar o borrar.</li></ul></article></div></section>
 <footer class="border-t border-gray-800 pt-6 text-sm text-gray-500">Guía de referencia para aprendizaje y trabajo diario. Adapta y valida los ejemplos antes de usarlos en producción.</footer>

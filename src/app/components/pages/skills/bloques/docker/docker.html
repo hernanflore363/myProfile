@@ -1,38 +1,132 @@
 <div class="min-h-screen bg-[#0d1117] text-gray-200 font-mono">
-  <section class="mb-12"><h1 class="text-3xl md:text-4xl font-bold text-blue-400 mb-4">Docker Architecture – Production Guide</h1><p class="text-gray-400 text-lg">Guía práctica de Docker para construir, ejecutar, conectar, persistir, diagnosticar y distribuir aplicaciones contenerizadas. Cada comando incluye qué hace, cuándo usarlo y qué debes revisar.</p><div class="mt-6 flex flex-wrap gap-2"> <a class="border border-gray-700 rounded-lg px-3 py-2 text-cyan-300" href="#concepts">Conceptos</a><a class="border border-gray-700 rounded-lg px-3 py-2 text-cyan-300" href="#commands">Comandos explicados</a><a class="border border-gray-700 rounded-lg px-3 py-2 text-cyan-300" href="#compose">Compose</a><a class="border border-gray-700 rounded-lg px-3 py-2 text-cyan-300" href="#workflow">Flujo real</a><a class="border border-gray-700 rounded-lg px-3 py-2 text-cyan-300" href="#troubleshooting">Diagnóstico</a></div></section>
-  <section id="concepts" class="anchor mb-16"><h2 class="text-2xl font-bold text-blue-300 mb-6">1. Conceptos fundamentales</h2><div class="grid md:grid-cols-2 gap-5">
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-xl text-blue-400 font-semibold mb-2">Dockerfile</h3><p class="text-gray-400 mb-3">Receta declarativa con las instrucciones para construir una imagen. Docker ejecuta sus pasos durante el build.</p><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>FROM node:22-alpine
+  <section class="mb-12">
+    <h1 class="text-3xl md:text-4xl font-bold text-blue-400 mb-4">Docker Architecture – Production Guide</h1>
+    <p class="text-gray-400 text-lg">Guía práctica de Docker para construir, ejecutar, conectar, persistir, diagnosticar
+      y distribuir aplicaciones contenerizadas. Cada comando incluye qué hace, cuándo usarlo y qué debes revisar.</p>
+    <div class="mt-6 flex flex-wrap gap-2"> <a class="border border-gray-700 rounded-lg px-3 py-2 text-cyan-300"
+        href="#concepts">Conceptos</a><a class="border border-gray-700 rounded-lg px-3 py-2 text-cyan-300"
+        href="#commands">Comandos explicados</a><a class="border border-gray-700 rounded-lg px-3 py-2 text-cyan-300"
+        href="#compose">Compose</a><a class="border border-gray-700 rounded-lg px-3 py-2 text-cyan-300"
+        href="#workflow">Flujo real</a><a class="border border-gray-700 rounded-lg px-3 py-2 text-cyan-300"
+        href="#troubleshooting">Diagnóstico</a></div>
+  </section>
+  <section id="concepts" class="anchor mb-16">
+    <h2 class="text-2xl font-bold text-blue-300 mb-6">1. Conceptos fundamentales</h2>
+    <div class="grid md:grid-cols-2 gap-5">
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5">
+        <h3 class="text-xl text-blue-400 font-semibold mb-2">Dockerfile</h3>
+        <p class="text-gray-400 mb-3">Receta declarativa con las instrucciones para construir una imagen. Docker ejecuta
+          sus pasos durante el build.</p>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">FROM node:22-alpine
   WORKDIR /app
   COPY package*.json ./
   RUN npm ci
   COPY . .
   EXPOSE 3000
-  CMD ["npm", "start"]</code></pre><ul class="text-sm text-gray-300 mt-3 space-y-1"><li><b>FROM:</b> imagen base con Node.js.</li><li><b>WORKDIR:</b> directorio de trabajo dentro de la imagen.</li><li><b>COPY package*.json:</b> copia los manifiestos de dependencias; ayuda a aprovechar la caché.</li><li><b>RUN npm ci:</b> instala exactamente lo definido en package-lock.json; requiere ese archivo.</li><li><b>COPY . .:</b> copia el código restante, salvo lo excluido por .dockerignore.</li><li><b>EXPOSE:</b> documenta el puerto esperado; no publica el puerto en el host.</li><li><b>CMD:</b> comando por defecto al iniciar el contenedor.</li></ul></div>
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-xl text-cyan-300 font-semibold mb-2">Image (imagen)</h3><p class="text-gray-400 mb-3">Plantilla versionada que contiene aplicación, runtime y dependencias. Una imagen no es el proceso que está ejecutándose.</p><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>docker build -t my-api:v1 .
+  CMD ["npm", "start"]</code></pre>
+        <ul class="text-sm text-gray-300 mt-3 space-y-1">
+          <li><b>FROM:</b> imagen base con Node.js.</li>
+          <li><b>WORKDIR:</b> directorio de trabajo dentro de la imagen.</li>
+          <li><b>COPY package*.json:</b> copia los manifiestos de dependencias; ayuda a aprovechar la caché.</li>
+          <li><b>RUN npm ci:</b> instala exactamente lo definido en package-lock.json; requiere ese archivo.</li>
+          <li><b>COPY . .:</b> copia el código restante, salvo lo excluido por .dockerignore.</li>
+          <li><b>EXPOSE:</b> documenta el puerto esperado; no publica el puerto en el host.</li>
+          <li><b>CMD:</b> comando por defecto al iniciar el contenedor.</li>
+        </ul>
+      </div>
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5">
+        <h3 class="text-xl text-cyan-300 font-semibold mb-2">Image (imagen)</h3>
+        <p class="text-gray-400 mb-3">Plantilla versionada que contiene aplicación, runtime y dependencias. Una imagen
+          no es el proceso que está ejecutándose.</p>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">docker build -t my-api:v1 .
   docker images
-  docker image inspect my-api:v1</code></pre><p class="text-sm text-gray-300 mt-3"><b>build</b> crea la imagen a partir del Dockerfile; <b>-t</b> asigna nombre y etiqueta; el punto indica el contexto de construcción actual. <b>images</b> lista imágenes locales. <b>inspect</b> muestra metadatos detallados.</p></div>
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-xl text-green-300 font-semibold mb-2">Container (contenedor)</h3><p class="text-gray-400 mb-3">Instancia ejecutable de una imagen: proceso aislado con filesystem, red y ciclo de vida propios. Los datos escritos solo en su capa pueden perderse al eliminarlo.</p><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>docker run -d --name my-api -p 3000:3000 my-api:v1
+  docker image inspect my-api:v1</code></pre>
+        <p class="text-sm text-gray-300 mt-3"><b>build</b> crea la imagen a partir del Dockerfile; <b>-t</b> asigna
+          nombre y etiqueta; el punto indica el contexto de construcción actual. <b>images</b> lista imágenes locales.
+          <b>inspect</b> muestra metadatos detallados.</p>
+      </div>
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5">
+        <h3 class="text-xl text-green-300 font-semibold mb-2">Container (contenedor)</h3>
+        <p class="text-gray-400 mb-3">Instancia ejecutable de una imagen: proceso aislado con filesystem, red y ciclo de
+          vida propios. Los datos escritos solo en su capa pueden perderse al eliminarlo.</p>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">docker run -d --name my-api -p 3000:3000 my-api:v1
   docker ps
   docker logs -f my-api
-  docker stop my-api</code></pre><p class="text-sm text-gray-300 mt-3"><b>-d</b> ejecuta en segundo plano; <b>--name</b> asigna un nombre; <b>-p 3000:3000</b> publica puerto_host:puerto_contenedor. <b>ps</b> lista contenedores activos; <b>logs -f</b> sigue los logs; <b>stop</b> solicita detenerlo.</p></div>
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-xl text-orange-300 font-semibold mb-2">Volume (volumen)</h3><p class="text-gray-400 mb-3">Almacenamiento administrado por Docker y separado del ciclo de vida del contenedor. Se usa para datos que deben persistir, como los de una base de datos.</p><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>docker volume create mysql_data
+  docker stop my-api</code></pre>
+        <p class="text-sm text-gray-300 mt-3"><b>-d</b> ejecuta en segundo plano; <b>--name</b> asigna un nombre; <b>-p
+            3000:3000</b> publica puerto_host:puerto_contenedor. <b>ps</b> lista contenedores activos; <b>logs -f</b>
+          sigue los logs; <b>stop</b> solicita detenerlo.</p>
+      </div>
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5">
+        <h3 class="text-xl text-orange-300 font-semibold mb-2">Volume (volumen)</h3>
+        <p class="text-gray-400 mb-3">Almacenamiento administrado por Docker y separado del ciclo de vida del
+          contenedor. Se usa para datos que deben persistir, como los de una base de datos.</p>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">docker volume create mysql_data
   docker volume ls
-  docker volume inspect mysql_data</code></pre><p class="text-sm text-gray-300 mt-3">Un volumen sobrevive a la eliminación del contenedor. El comando <code>-v mysql_data:/var/lib/mysql</code> monta el volumen en el directorio de datos de MySQL. Elimina volúmenes solo si confirmaste que no necesitas su contenido.</p></div>
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-xl text-purple-300 font-semibold mb-2">Network (red)</h3><p class="text-gray-400 mb-3">Permite la comunicación entre contenedores. En una red definida por el usuario, normalmente se pueden resolver entre sí por nombre de contenedor o servicio.</p><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>docker network create backend-network
+  docker volume inspect mysql_data</code></pre>
+        <p class="text-sm text-gray-300 mt-3">Un volumen sobrevive a la eliminación del contenedor. El comando
+          <code>-v mysql_data:/var/lib/mysql</code> monta el volumen en el directorio de datos de MySQL. Elimina
+          volúmenes solo si confirmaste que no necesitas su contenido.</p>
+      </div>
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5">
+        <h3 class="text-xl text-purple-300 font-semibold mb-2">Network (red)</h3>
+        <p class="text-gray-400 mb-3">Permite la comunicación entre contenedores. En una red definida por el usuario,
+          normalmente se pueden resolver entre sí por nombre de contenedor o servicio.</p>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">docker network create backend-network
   docker network ls
-  docker network inspect backend-network</code></pre><p class="text-sm text-gray-300 mt-3">Conecta servicios a una red compartida. Desde la API, la base de datos se puede alcanzar usando el nombre DNS del servicio, por ejemplo <code>mysql:3306</code>, no <code>localhost:3306</code>.</p></div>
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-xl text-pink-300 font-semibold mb-2">Docker Compose</h3><p class="text-gray-400 mb-3">Define varios servicios, redes, volúmenes y configuración en un archivo YAML para administrarlos como una aplicación.</p><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>docker compose up -d
+  docker network inspect backend-network</code></pre>
+        <p class="text-sm text-gray-300 mt-3">Conecta servicios a una red compartida. Desde la API, la base de datos se
+          puede alcanzar usando el nombre DNS del servicio, por ejemplo <code>mysql:3306</code>, no
+          <code>localhost:3306</code>.</p>
+      </div>
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5">
+        <h3 class="text-xl text-pink-300 font-semibold mb-2">Docker Compose</h3>
+        <p class="text-gray-400 mb-3">Define varios servicios, redes, volúmenes y configuración en un archivo YAML para
+          administrarlos como una aplicación.</p>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">docker compose up -d
   docker compose ps
   docker compose logs -f
-  docker compose down</code></pre><p class="text-sm text-gray-300 mt-3"><b>up -d</b> crea/inicia los servicios en segundo plano; <b>ps</b> muestra su estado; <b>logs -f</b> sigue sus logs; <b>down</b> detiene y elimina contenedores y redes creados por Compose. Los volúmenes nombrados no se eliminan por defecto.</p></div>
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-xl text-yellow-300 font-semibold mb-2">Registry</h3><p class="text-gray-400 mb-3">Servicio que almacena y distribuye imágenes, público o privado. Ejemplos: Docker Hub, GitLab Container Registry y registries de nube.</p><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>docker login
+  docker compose down</code></pre>
+        <p class="text-sm text-gray-300 mt-3"><b>up -d</b> crea/inicia los servicios en segundo plano; <b>ps</b> muestra
+          su estado; <b>logs -f</b> sigue sus logs; <b>down</b> detiene y elimina contenedores y redes creados por
+          Compose. Los volúmenes nombrados no se eliminan por defecto.</p>
+      </div>
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5">
+        <h3 class="text-xl text-yellow-300 font-semibold mb-2">Registry</h3>
+        <p class="text-gray-400 mb-3">Servicio que almacena y distribuye imágenes, público o privado. Ejemplos: Docker
+          Hub, GitLab Container Registry y registries de nube.</p>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">docker login
   # Ajustar al registry y usuario reales
   docker tag my-api:v1 usuario/my-api:v1
   docker push usuario/my-api:v1
-  docker pull usuario/my-api:v1</code></pre><p class="text-sm text-gray-300 mt-3"><b>tag</b> asigna otra referencia a la imagen local; <b>push</b> la publica; <b>pull</b> la descarga. El destino debe existir o permitir su creación y tu usuario debe tener permisos.</p></div>
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-xl text-red-300 font-semibold mb-2">Healthcheck</h3><p class="text-gray-400 mb-3">Define una prueba periódica para marcar un contenedor como healthy o unhealthy. No reinicia por sí solo un proceso solo porque esté unhealthy.</p><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>HEALTHCHECK --interval=30s --timeout=5s --retries=3 \\
-    CMD wget --spider -q http://localhost:3000/health || exit 1</code></pre><p class="text-sm text-gray-300 mt-3">La ruta debe existir y la imagen debe incluir <code>wget</code> (o reemplazarlo por una herramienta disponible). Ajusta el puerto y endpoint a tu API.</p></div>
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-xl text-indigo-300 font-semibold mb-2">Multi-stage build</h3><p class="text-gray-400 mb-3">Usa etapas separadas para compilar y ejecutar. Permite no copiar compiladores y herramientas de build a la imagen final.</p><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>FROM golang:1.24 AS builder
+  docker pull usuario/my-api:v1</code></pre>
+        <p class="text-sm text-gray-300 mt-3"><b>tag</b> asigna otra referencia a la imagen local; <b>push</b> la
+          publica; <b>pull</b> la descarga. El destino debe existir o permitir su creación y tu usuario debe tener
+          permisos.</p>
+      </div>
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5">
+        <h3 class="text-xl text-red-300 font-semibold mb-2">Healthcheck</h3>
+        <p class="text-gray-400 mb-3">Define una prueba periódica para marcar un contenedor como healthy o unhealthy. No
+          reinicia por sí solo un proceso solo porque esté unhealthy.</p>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">HEALTHCHECK --interval=30s --timeout=5s --retries=3 \\
+    CMD wget --spider -q http://localhost:3000/health || exit 1</code></pre>
+        <p class="text-sm text-gray-300 mt-3">La ruta debe existir y la imagen debe incluir <code>wget</code> (o
+          reemplazarlo por una herramienta disponible). Ajusta el puerto y endpoint a tu API.</p>
+      </div>
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-5">
+        <h3 class="text-xl text-indigo-300 font-semibold mb-2">Multi-stage build</h3>
+        <p class="text-gray-400 mb-3">Usa etapas separadas para compilar y ejecutar. Permite no copiar compiladores y
+          herramientas de build a la imagen final.</p>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">FROM golang:1.24 AS builder
   WORKDIR /src
   COPY . .
   RUN go build -o /out/api .
@@ -41,64 +135,190 @@
   WORKDIR /app
   COPY --from=builder /out/api ./api
   EXPOSE 8080
-  CMD ["./api"]</code></pre><p class="text-sm text-gray-300 mt-3">La imagen final contiene el binario, no el toolchain completo. Para producción valida compatibilidad de bibliotecas, certificados CA, usuario no root y versiones soportadas.</p></div>
-  </div></section>
-  <section id="commands" class="anchor mt-16"><h2 class="text-3xl text-blue-300 font-bold mb-3">2. Docker Developer Command Cheat Sheet</h2><p class="text-gray-400 text-lg mb-8">Comandos de uso frecuente, con explicación de su función y ejemplos para desarrollo y diagnóstico.</p>
-  <div class="space-y-6">
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6"><h3 class="text-xl text-cyan-300 font-semibold mb-3">2.1 Verificar instalación y contexto</h3><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>docker --version
+  CMD ["./api"]</code></pre>
+        <p class="text-sm text-gray-300 mt-3">La imagen final contiene el binario, no el toolchain completo. Para
+          producción valida compatibilidad de bibliotecas, certificados CA, usuario no root y versiones soportadas.</p>
+      </div>
+    </div>
+  </section>
+  <section id="commands" class="anchor mt-16">
+    <h2 class="text-3xl text-blue-300 font-bold mb-3">2. Docker Developer Command Cheat Sheet</h2>
+    <p class="text-gray-400 text-lg mb-8">Comandos de uso frecuente, con explicación de su función y ejemplos para
+      desarrollo y diagnóstico.</p>
+    <div class="space-y-6">
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h3 class="text-xl text-cyan-300 font-semibold mb-3">2.1 Verificar instalación y contexto</h3>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">docker --version
   docker version
   docker info
   docker context ls
   docker context show
-  docker context use default</code></pre><ul class="text-sm text-gray-300 mt-4 space-y-2"><li><b>docker --version:</b> muestra la versión del cliente.</li><li><b>docker version:</b> muestra versiones del cliente y del daemon; ayuda a detectar problemas de conexión.</li><li><b>docker info:</b> presenta datos del daemon, almacenamiento, runtime y configuración.</li><li><b>docker context ls/show/use:</b> lista, identifica y cambia el destino al que se conecta Docker. Antes de operar, confirma que sea el entorno correcto.</li></ul></div>
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6"><h3 class="text-xl text-cyan-300 font-semibold mb-3">2.2 Imágenes: construir, listar y eliminar</h3><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>docker build -t my-api:v1 .
+  docker context use default</code></pre>
+        <ul class="text-sm text-gray-300 mt-4 space-y-2">
+          <li><b>docker --version:</b> muestra la versión del cliente.</li>
+          <li><b>docker version:</b> muestra versiones del cliente y del daemon; ayuda a detectar problemas de conexión.
+          </li>
+          <li><b>docker info:</b> presenta datos del daemon, almacenamiento, runtime y configuración.</li>
+          <li><b>docker context ls/show/use:</b> lista, identifica y cambia el destino al que se conecta Docker. Antes
+            de operar, confirma que sea el entorno correcto.</li>
+        </ul>
+      </div>
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h3 class="text-xl text-cyan-300 font-semibold mb-3">2.2 Imágenes: construir, listar y eliminar</h3>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">docker build -t my-api:v1 .
   docker build --no-cache -t my-api:debug .
   docker images
   docker image history my-api:v1
   docker image inspect my-api:v1
   docker image rm my-api:v1
-  docker image prune</code></pre><ul class="text-sm text-gray-300 mt-4 space-y-2"><li><b>build -t:</b> construye una imagen etiquetada; <code>.</code> es el contexto que Docker puede leer.</li><li><b>--no-cache:</b> rehace las capas sin usar caché; útil para investigar builds, pero suele tardar más.</li><li><b>images:</b> lista las imágenes locales.</li><li><b>history:</b> muestra las capas e instrucciones que contribuyeron a la imagen; no debe usarse para ocultar secretos incluidos por error.</li><li><b>inspect:</b> muestra configuración detallada en formato JSON.</li><li><b>image rm:</b> elimina una referencia local si no está en uso.</li><li><b>image prune:</b> elimina imágenes dangling no utilizadas; revisa el alcance antes de limpiar.</li></ul></div>
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6"><h3 class="text-xl text-green-300 font-semibold mb-3">2.3 Contenedores: ciclo de vida</h3><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>docker run --name my-api -d -p 3000:3000 my-api:v1
+  docker image prune</code></pre>
+        <ul class="text-sm text-gray-300 mt-4 space-y-2">
+          <li><b>build -t:</b> construye una imagen etiquetada; <code>.</code> es el contexto que Docker puede leer.
+          </li>
+          <li><b>--no-cache:</b> rehace las capas sin usar caché; útil para investigar builds, pero suele tardar más.
+          </li>
+          <li><b>images:</b> lista las imágenes locales.</li>
+          <li><b>history:</b> muestra las capas e instrucciones que contribuyeron a la imagen; no debe usarse para
+            ocultar secretos incluidos por error.</li>
+          <li><b>inspect:</b> muestra configuración detallada en formato JSON.</li>
+          <li><b>image rm:</b> elimina una referencia local si no está en uso.</li>
+          <li><b>image prune:</b> elimina imágenes dangling no utilizadas; revisa el alcance antes de limpiar.</li>
+        </ul>
+      </div>
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h3 class="text-xl text-green-300 font-semibold mb-3">2.3 Contenedores: ciclo de vida</h3>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">docker run --name my-api -d -p 3000:3000 my-api:v1
   docker ps
   docker ps -a
   docker start my-api
   docker stop my-api
   docker restart my-api
   docker rm -f my-api
-  docker container prune</code></pre><ul class="text-sm text-gray-300 mt-4 space-y-2"><li><b>run:</b> crea e inicia un contenedor nuevo a partir de una imagen.</li><li><b>ps:</b> muestra contenedores activos; <b>ps -a</b> también incluye detenidos.</li><li><b>start/stop/restart:</b> inicia, detiene o reinicia un contenedor ya creado.</li><li><b>rm -f:</b> fuerza la eliminación del contenedor, incluso si está en ejecución; úsalo con cuidado.</li><li><b>container prune:</b> elimina todos los contenedores detenidos. No elimina volúmenes por defecto.</li></ul></div>
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6"><h3 class="text-xl text-yellow-300 font-semibold mb-3">2.4 Logs, estado y diagnóstico</h3><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>docker logs my-api
+  docker container prune</code></pre>
+        <ul class="text-sm text-gray-300 mt-4 space-y-2">
+          <li><b>run:</b> crea e inicia un contenedor nuevo a partir de una imagen.</li>
+          <li><b>ps:</b> muestra contenedores activos; <b>ps -a</b> también incluye detenidos.</li>
+          <li><b>start/stop/restart:</b> inicia, detiene o reinicia un contenedor ya creado.</li>
+          <li><b>rm -f:</b> fuerza la eliminación del contenedor, incluso si está en ejecución; úsalo con cuidado.</li>
+          <li><b>container prune:</b> elimina todos los contenedores detenidos. No elimina volúmenes por defecto.</li>
+        </ul>
+      </div>
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h3 class="text-xl text-yellow-300 font-semibold mb-3">2.4 Logs, estado y diagnóstico</h3>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">docker logs my-api
   docker logs -f --tail=100 my-api
   docker inspect my-api
   docker stats
   docker events
-  docker top my-api</code></pre><ul class="text-sm text-gray-300 mt-4 space-y-2"><li><b>logs:</b> consulta la salida estándar y errores del proceso; <code>-f</code> sigue la salida y <code>--tail=100</code> limita las líneas iniciales.</li><li><b>inspect:</b> revisa estado, puertos, variables, montajes y configuración; evita compartir su salida sin revisar datos sensibles.</li><li><b>stats:</b> muestra consumo de CPU, memoria, red e I/O en tiempo real.</li><li><b>events:</b> muestra eventos del daemon Docker.</li><li><b>top:</b> muestra procesos que corren dentro del contenedor.</li></ul></div>
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6"><h3 class="text-xl text-orange-300 font-semibold mb-3">2.5 Entrar al contenedor y ejecutar comandos</h3><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>docker exec -it my-api sh
+  docker top my-api</code></pre>
+        <ul class="text-sm text-gray-300 mt-4 space-y-2">
+          <li><b>logs:</b> consulta la salida estándar y errores del proceso; <code>-f</code> sigue la salida y
+            <code>--tail=100</code> limita las líneas iniciales.</li>
+          <li><b>inspect:</b> revisa estado, puertos, variables, montajes y configuración; evita compartir su salida sin
+            revisar datos sensibles.</li>
+          <li><b>stats:</b> muestra consumo de CPU, memoria, red e I/O en tiempo real.</li>
+          <li><b>events:</b> muestra eventos del daemon Docker.</li>
+          <li><b>top:</b> muestra procesos que corren dentro del contenedor.</li>
+        </ul>
+      </div>
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h3 class="text-xl text-orange-300 font-semibold mb-3">2.5 Entrar al contenedor y ejecutar comandos</h3>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">docker exec -it my-api sh
   docker exec my-api printenv
   docker exec -it my-api node --version
-  docker cp my-api:/app/log.txt ./log.txt</code></pre><ul class="text-sm text-gray-300 mt-4 space-y-2"><li><b>exec -it ... sh:</b> abre una shell interactiva dentro de un contenedor activo. Algunas imágenes mínimas no tienen <code>sh</code> o <code>bash</code>.</li><li><b>printenv:</b> imprime variables de entorno; puede revelar secretos, así que no pegues la salida en tickets públicos.</li><li><b>node --version:</b> ejecuta un comando dentro del contenedor sin abrir una shell.</li><li><b>cp:</b> copia un archivo entre contenedor y host. No es un reemplazo de volúmenes para persistencia.</li></ul></div>
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6"><h3 class="text-xl text-purple-300 font-semibold mb-3">2.6 Puertos y redes</h3><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>docker port my-api
+  docker cp my-api:/app/log.txt ./log.txt</code></pre>
+        <ul class="text-sm text-gray-300 mt-4 space-y-2">
+          <li><b>exec -it ... sh:</b> abre una shell interactiva dentro de un contenedor activo. Algunas imágenes
+            mínimas no tienen <code>sh</code> o <code>bash</code>.</li>
+          <li><b>printenv:</b> imprime variables de entorno; puede revelar secretos, así que no pegues la salida en
+            tickets públicos.</li>
+          <li><b>node --version:</b> ejecuta un comando dentro del contenedor sin abrir una shell.</li>
+          <li><b>cp:</b> copia un archivo entre contenedor y host. No es un reemplazo de volúmenes para persistencia.
+          </li>
+        </ul>
+      </div>
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h3 class="text-xl text-purple-300 font-semibold mb-3">2.6 Puertos y redes</h3>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">docker port my-api
   docker network ls
   docker network create app-net
   docker network connect app-net my-api
   docker network inspect app-net
-  docker network disconnect app-net my-api</code></pre><ul class="text-sm text-gray-300 mt-4 space-y-2"><li><b>port:</b> muestra los mapeos de puertos publicados.</li><li><b>network ls/create:</b> lista o crea redes.</li><li><b>network connect/disconnect:</b> conecta o desconecta un contenedor de una red existente.</li><li><b>network inspect:</b> permite verificar qué contenedores están conectados y la configuración de la red.</li></ul></div>
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6"><h3 class="text-xl text-orange-300 font-semibold mb-3">2.7 Volúmenes y datos</h3><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>docker volume create app-data
+  docker network disconnect app-net my-api</code></pre>
+        <ul class="text-sm text-gray-300 mt-4 space-y-2">
+          <li><b>port:</b> muestra los mapeos de puertos publicados.</li>
+          <li><b>network ls/create:</b> lista o crea redes.</li>
+          <li><b>network connect/disconnect:</b> conecta o desconecta un contenedor de una red existente.</li>
+          <li><b>network inspect:</b> permite verificar qué contenedores están conectados y la configuración de la red.
+          </li>
+        </ul>
+      </div>
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h3 class="text-xl text-orange-300 font-semibold mb-3">2.7 Volúmenes y datos</h3>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">docker volume create app-data
   docker volume ls
   docker volume inspect app-data
   docker run -d --name db -v app-data:/var/lib/mysql mysql:8.4
-  docker volume rm app-data</code></pre><ul class="text-sm text-gray-300 mt-4 space-y-2"><li><b>create/ls/inspect:</b> crean, listan e inspeccionan volúmenes.</li><li><b>-v app-data:/var/lib/mysql:</b> monta el volumen nombrado en la ubicación de datos de MySQL.</li><li><b>volume rm:</b> elimina un volumen; Docker normalmente impide borrar uno que esté en uso. Verifica respaldos antes de borrarlo.</li></ul><p class="text-xs text-orange-200 mt-3">Nota: no uses una contraseña real directamente en la línea de comandos ni la guardes en el historial. En producción utiliza un gestor de secretos y una política segura de credenciales.</p></div>
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6"><h3 class="text-xl text-pink-300 font-semibold mb-3">2.8 Registry: publicar y descargar imágenes</h3><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>docker login registry.example.com
+  docker volume rm app-data</code></pre>
+        <ul class="text-sm text-gray-300 mt-4 space-y-2">
+          <li><b>create/ls/inspect:</b> crean, listan e inspeccionan volúmenes.</li>
+          <li><b>-v app-data:/var/lib/mysql:</b> monta el volumen nombrado en la ubicación de datos de MySQL.</li>
+          <li><b>volume rm:</b> elimina un volumen; Docker normalmente impide borrar uno que esté en uso. Verifica
+            respaldos antes de borrarlo.</li>
+        </ul>
+        <p class="text-xs text-orange-200 mt-3">Nota: no uses una contraseña real directamente en la línea de comandos
+          ni la guardes en el historial. En producción utiliza un gestor de secretos y una política segura de
+          credenciales.</p>
+      </div>
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h3 class="text-xl text-pink-300 font-semibold mb-3">2.8 Registry: publicar y descargar imágenes</h3>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">docker login registry.example.com
   docker tag my-api:v1 registry.example.com/team/my-api:v1
   docker push registry.example.com/team/my-api:v1
   docker pull registry.example.com/team/my-api:v1
-  docker logout registry.example.com</code></pre><ul class="text-sm text-gray-300 mt-4 space-y-2"><li><b>login:</b> autentica con el registry indicado.</li><li><b>tag:</b> añade una referencia que incluye registry, proyecto, imagen y etiqueta.</li><li><b>push/pull:</b> publica/descarga la imagen.</li><li><b>logout:</b> cierra la sesión local del registry.</li></ul></div>
-  <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6"><h3 class="text-xl text-red-300 font-semibold mb-3">2.9 Limpieza segura</h3><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>docker system df
+  docker logout registry.example.com</code></pre>
+        <ul class="text-sm text-gray-300 mt-4 space-y-2">
+          <li><b>login:</b> autentica con el registry indicado.</li>
+          <li><b>tag:</b> añade una referencia que incluye registry, proyecto, imagen y etiqueta.</li>
+          <li><b>push/pull:</b> publica/descarga la imagen.</li>
+          <li><b>logout:</b> cierra la sesión local del registry.</li>
+        </ul>
+      </div>
+      <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+        <h3 class="text-xl text-red-300 font-semibold mb-3">2.9 Limpieza segura</h3>
+        <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">docker system df
   docker container prune
   docker image prune
   docker builder prune
-  docker system prune</code></pre><ul class="text-sm text-gray-300 mt-4 space-y-2"><li><b>system df:</b> informa cuánto espacio usa Docker.</li><li><b>container prune:</b> elimina contenedores detenidos.</li><li><b>image prune:</b> elimina imágenes dangling no utilizadas.</li><li><b>builder prune:</b> elimina caché de construcción que ya no se necesita.</li><li><b>system prune:</b> limpia recursos no utilizados; lee la confirmación y revisa qué se eliminará. No agregues <code>--volumes</code> sin confirmar que los datos son prescindibles.</li></ul></div>
-  </div></section>
-  <section id="compose" class="anchor mt-16"><h2 class="text-3xl text-pink-300 font-bold mb-4">3. Docker Compose: API + MySQL</h2><p class="text-gray-400 mb-5">Ejemplo de desarrollo local. La API y MySQL comparten una red creada por Compose; el nombre del servicio <code>mysql</code> funciona como hostname desde la API.</p><div class="bg-[#161b22] border border-gray-700 rounded-xl p-6"><h3 class="text-lg text-cyan-300 mb-3">compose.yaml</h3><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>services:
+  docker system prune</code></pre>
+        <ul class="text-sm text-gray-300 mt-4 space-y-2">
+          <li><b>system df:</b> informa cuánto espacio usa Docker.</li>
+          <li><b>container prune:</b> elimina contenedores detenidos.</li>
+          <li><b>image prune:</b> elimina imágenes dangling no utilizadas.</li>
+          <li><b>builder prune:</b> elimina caché de construcción que ya no se necesita.</li>
+          <li><b>system prune:</b> limpia recursos no utilizados; lee la confirmación y revisa qué se eliminará. No
+            agregues <code>--volumes</code> sin confirmar que los datos son prescindibles.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+  <section id="compose" class="anchor mt-16">
+    <h2 class="text-3xl text-pink-300 font-bold mb-4">3. Docker Compose: API + MySQL</h2>
+    <p class="text-gray-400 mb-5">Ejemplo de desarrollo local. La API y MySQL comparten una red creada por Compose; el
+      nombre del servicio <code>mysql</code> funciona como hostname desde la API.</p>
+    <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
+      <h3 class="text-lg text-cyan-300 mb-3">compose.yaml</h3>
+      <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">services:
     api:
       build: .
       ports:
@@ -130,20 +350,132 @@
         retries: 5
 
   volumes:
-    mysql_data:</code></pre><p class="text-sm text-gray-300 mt-4">Compose interpreta las variables del host al procesar el archivo. Define <code>DB_PASSWORD</code> y <code>MYSQL_ROOT_PASSWORD</code> en tu entorno local o en un archivo ignorado por Git. Para producción, usa el mecanismo de secretos de la plataforma y revisa la seguridad de la configuración.</p><h3 class="text-lg text-cyan-300 mt-6 mb-3">Comandos para administrarlo</h3><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>docker compose config
+    mysql_data:</code></pre>
+      <p class="text-sm text-gray-300 mt-4">Compose interpreta las variables del host al procesar el archivo. Define
+        <code>DB_PASSWORD</code> y <code>MYSQL_ROOT_PASSWORD</code> en tu entorno local o en un archivo ignorado por
+        Git. Para producción, usa el mecanismo de secretos de la plataforma y revisa la seguridad de la configuración.
+      </p>
+      <h3 class="text-lg text-cyan-300 mt-6 mb-3">Comandos para administrarlo</h3>
+      <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">docker compose config
   docker compose up -d --build
   docker compose ps
   docker compose logs -f api
   docker compose exec api sh
   docker compose restart api
-  docker compose down</code></pre><ul class="text-sm text-gray-300 mt-4 space-y-2"><li><b>config:</b> valida y muestra la configuración ya interpolada; cuidado, puede mostrar valores sensibles.</li><li><b>up -d --build:</b> construye las imágenes que corresponda y levanta los servicios en segundo plano.</li><li><b>ps:</b> estado de servicios y contenedores.</li><li><b>logs -f api:</b> sigue logs de la API.</li><li><b>exec api sh:</b> abre una shell en el servicio si la imagen contiene una shell.</li><li><b>restart api:</b> reinicia solo el servicio API.</li><li><b>down:</b> detiene y elimina contenedores y red del proyecto; el volumen nombrado permanece si no se usa <code>-v</code>.</li></ul></div></section>
-  <section id="workflow" class="anchor mt-16"><h2 class="text-3xl text-blue-300 font-bold mb-4">4. Flujo real de desarrollo y entrega</h2><div class="bg-[#161b22] border border-gray-700 rounded-xl p-6"><ol class="list-decimal ml-6 space-y-4 text-gray-300"><li><b>Preparar el proyecto.</b> Tener <code>Dockerfile</code>, <code>.dockerignore</code> y dependencias bloqueadas en el repositorio.</li><li><b>Construir imagen.</b> <code>docker build -t my-api:dev .</code> empaqueta código y runtime; el tag ayuda a identificar la versión.</li><li><b>Probar localmente.</b> <code>docker run --rm --name my-api-test -p 3000:3000 my-api:dev</code>. <code>--rm</code> elimina el contenedor cuando termina, pero no la imagen.</li><li><b>Revisar logs y salud.</b> Usar <code>docker logs</code>, <code>docker ps</code> e inspeccionar el endpoint desde el host.</li><li><b>Ejecutar dependencias.</b> En proyectos con varias piezas, definir API, base de datos, redes y volúmenes en Compose.</li><li><b>Etiquetar y publicar.</b> Usar un registry accesible por el entorno destino; emplear una etiqueta de versión o un identificador de commit, no depender de <code>latest</code>.</li><li><b>Desplegar.</b> Un entorno de Kubernetes puede descargar esa imagen desde el registry. Docker construye/ejecuta contenedores; Kubernetes orquesta Pods y sus réplicas.</li></ol></div><div class="bg-[#161b22] border border-gray-700 rounded-xl p-6 mt-5"><h3 class="text-xl text-cyan-300 mb-3">Ejemplo de .dockerignore</h3><pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto"><code>node_modules
+  docker compose down</code></pre>
+      <ul class="text-sm text-gray-300 mt-4 space-y-2">
+        <li><b>config:</b> valida y muestra la configuración ya interpolada; cuidado, puede mostrar valores sensibles.
+        </li>
+        <li><b>up -d --build:</b> construye las imágenes que corresponda y levanta los servicios en segundo plano.</li>
+        <li><b>ps:</b> estado de servicios y contenedores.</li>
+        <li><b>logs -f api:</b> sigue logs de la API.</li>
+        <li><b>exec api sh:</b> abre una shell en el servicio si la imagen contiene una shell.</li>
+        <li><b>restart api:</b> reinicia solo el servicio API.</li>
+        <li><b>down:</b> detiene y elimina contenedores y red del proyecto; el volumen nombrado permanece si no se usa
+          <code>-v</code>.</li>
+      </ul>
+    </div>
+  </section>
+  <section id="workflow" class="anchor mt-16">
+    <h2 class="text-3xl text-blue-300 font-bold mb-4">4. Flujo real de desarrollo y entrega</h2>
+    <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6 text-left">
+      <ol class="list-decimal ml-6 space-y-4 text-gray-300">
+        <li><b>Preparar el proyecto.</b> Tener <code>Dockerfile</code>, <code>.dockerignore</code> y dependencias
+          bloqueadas en el repositorio.</li>
+        <li><b>Construir imagen.</b> <code>docker build -t my-api:dev .</code> empaqueta código y runtime; el tag ayuda
+          a identificar la versión.</li>
+        <li><b>Probar localmente.</b> <code>docker run --rm --name my-api-test -p 3000:3000 my-api:dev</code>.
+          <code>--rm</code> elimina el contenedor cuando termina, pero no la imagen.</li>
+        <li><b>Revisar logs y salud.</b> Usar <code>docker logs</code>, <code>docker ps</code> e inspeccionar el
+          endpoint desde el host.</li>
+        <li><b>Ejecutar dependencias.</b> En proyectos con varias piezas, definir API, base de datos, redes y volúmenes
+          en Compose.</li>
+        <li><b>Etiquetar y publicar.</b> Usar un registry accesible por el entorno destino; emplear una etiqueta de
+          versión o un identificador de commit, no depender de <code>latest</code>.</li>
+        <li><b>Desplegar.</b> Un entorno de Kubernetes puede descargar esa imagen desde el registry. Docker
+          construye/ejecuta contenedores; Kubernetes orquesta Pods y sus réplicas.</li>
+      </ol>
+    </div>
+    <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6 mt-5">
+      <h3 class="text-xl text-cyan-300 mb-3">Ejemplo de .dockerignore</h3>
+      <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
+  <code class="block text-left whitespace-pre">node_modules
   npm-debug.log
   .git
   .env
   coverage
-  .DS_Store</code></pre><p class="text-sm text-gray-300 mt-3">Evita enviar archivos innecesarios o sensibles al contexto de build. Si excluyes <code>.env</code>, la aplicación debe recibir la configuración por un mecanismo externo al construir la imagen.</p></div></section>
-  <section id="troubleshooting" class="anchor mt-16"><h2 class="text-3xl text-orange-300 font-bold mb-4">5. Diagnóstico de problemas comunes</h2><div class="overflow-x-auto bg-[#161b22] border border-gray-700 rounded-xl"><table class="w-full text-sm text-left text-gray-300"><thead class="bg-[#0d1117] text-gray-100"><tr><th class="p-3">Síntoma</th><th class="p-3">Qué revisar</th><th class="p-3">Comandos útiles</th></tr></thead><tbody><tr class="border-t border-gray-700"><td class="p-3 text-orange-300">Contenedor se detiene</td><td class="p-3">Proceso principal, error de arranque, variables, configuración.</td><td class="p-3"><code>docker ps -a</code><br><code>docker logs my-api</code></td></tr><tr class="border-t border-gray-700"><td class="p-3 text-orange-300">No conecta el puerto</td><td class="p-3">Puerto publicado, puerto interno y que la app escuche en 0.0.0.0 dentro del contenedor.</td><td class="p-3"><code>docker port my-api</code><br><code>docker inspect my-api</code></td></tr><tr class="border-t border-gray-700"><td class="p-3 text-orange-300">API no conecta a MySQL</td><td class="p-3">Red compartida, hostname del servicio, credenciales y estado de la base.</td><td class="p-3"><code>docker compose ps</code><br><code>docker compose logs mysql</code></td></tr><tr class="border-t border-gray-700"><td class="p-3 text-orange-300">No encuentra imagen</td><td class="p-3">Nombre/tag, registry, autenticación y arquitectura compatible.</td><td class="p-3"><code>docker images</code><br><code>docker pull registry/image:tag</code></td></tr><tr class="border-t border-gray-700"><td class="p-3 text-orange-300">Datos desaparecen</td><td class="p-3">Que el directorio de datos esté montado en un volumen o bind mount.</td><td class="p-3"><code>docker inspect db</code><br><code>docker volume ls</code></td></tr><tr class="border-t border-gray-700"><td class="p-3 text-orange-300">Build lento o imagen grande</td><td class="p-3">Orden de COPY, caché, .dockerignore y multi-stage build.</td><td class="p-3"><code>docker image history my-api:v1</code></td></tr></tbody></table></div></section>
-  <section class="mt-16"><h2 class="text-2xl text-green-300 font-bold mb-4">6. Buenas prácticas para producción</h2><div class="bg-[#161b22] border border-gray-700 rounded-xl p-6"><ul class="space-y-3 text-gray-300"><li>✔ Usa imágenes oficiales y versiones específicas; evita depender de <code>latest</code>.</li><li>✔ Aplica multi-stage builds y mantén pequeño el contexto con <code>.dockerignore</code>.</li><li>✔ Ejecuta la aplicación como usuario no root cuando sea posible.</li><li>✔ No copies contraseñas, tokens ni archivos <code>.env</code> dentro de la imagen.</li><li>✔ Persiste datos importantes en volúmenes o almacenamiento externo.</li><li>✔ Usa redes dedicadas y expón solo los puertos necesarios.</li><li>✔ Define healthchecks realistas y registra logs en stdout/stderr.</li><li>✔ Fija versiones, analiza vulnerabilidades y reconstruye imágenes para recibir actualizaciones de seguridad.</li><li>✔ Usa tags inmutables o identificadores de commit en CI/CD.</li><li>✔ Revisa el alcance de los comandos de limpieza antes de borrar recursos.</li></ul></div></section>
-  <footer class="text-xs text-gray-500 mt-12 border-t border-gray-800 pt-5">Guía de referencia educativa. Adapta imágenes, puertos, rutas de salud, credenciales y nombres de recursos a tu proyecto. Para producción, sigue las políticas de seguridad de tu organización.</footer>
+  .DS_Store</code></pre>
+      <p class="text-sm text-gray-300 mt-3">Evita enviar archivos innecesarios o sensibles al contexto de build. Si
+        excluyes <code>.env</code>, la aplicación debe recibir la configuración por un mecanismo externo al construir la
+        imagen.</p>
+    </div>
+  </section>
+  <section id="troubleshooting" class="anchor mt-16">
+    <h2 class="text-3xl text-orange-300 font-bold mb-4">5. Diagnóstico de problemas comunes</h2>
+    <div class="overflow-x-auto bg-[#161b22] border border-gray-700 rounded-xl">
+      <table class="w-full text-sm text-left text-gray-300">
+        <thead class="bg-[#0d1117] text-gray-100">
+          <tr>
+            <th class="p-3">Síntoma</th>
+            <th class="p-3">Qué revisar</th>
+            <th class="p-3">Comandos útiles</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="border-t border-gray-700">
+            <td class="p-3 text-orange-300">Contenedor se detiene</td>
+            <td class="p-3">Proceso principal, error de arranque, variables, configuración.</td>
+            <td class="p-3"><code>docker ps -a</code><br><code>docker logs my-api</code></td>
+          </tr>
+          <tr class="border-t border-gray-700">
+            <td class="p-3 text-orange-300">No conecta el puerto</td>
+            <td class="p-3">Puerto publicado, puerto interno y que la app escuche en 0.0.0.0 dentro del contenedor.</td>
+            <td class="p-3"><code>docker port my-api</code><br><code>docker inspect my-api</code></td>
+          </tr>
+          <tr class="border-t border-gray-700">
+            <td class="p-3 text-orange-300">API no conecta a MySQL</td>
+            <td class="p-3">Red compartida, hostname del servicio, credenciales y estado de la base.</td>
+            <td class="p-3"><code>docker compose ps</code><br><code>docker compose logs mysql</code></td>
+          </tr>
+          <tr class="border-t border-gray-700">
+            <td class="p-3 text-orange-300">No encuentra imagen</td>
+            <td class="p-3">Nombre/tag, registry, autenticación y arquitectura compatible.</td>
+            <td class="p-3"><code>docker images</code><br><code>docker pull registry/image:tag</code></td>
+          </tr>
+          <tr class="border-t border-gray-700">
+            <td class="p-3 text-orange-300">Datos desaparecen</td>
+            <td class="p-3">Que el directorio de datos esté montado en un volumen o bind mount.</td>
+            <td class="p-3"><code>docker inspect db</code><br><code>docker volume ls</code></td>
+          </tr>
+          <tr class="border-t border-gray-700">
+            <td class="p-3 text-orange-300">Build lento o imagen grande</td>
+            <td class="p-3">Orden de COPY, caché, .dockerignore y multi-stage build.</td>
+            <td class="p-3"><code>docker image history my-api:v1</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+  <section class="mt-16">
+    <h2 class="text-2xl text-green-300 font-bold mb-4">6. Buenas prácticas para producción</h2>
+    <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6 text-left">
+      <ul class="space-y-3 text-gray-300">
+        <li>✔ Usa imágenes oficiales y versiones específicas; evita depender de <code>latest</code>.</li>
+        <li>✔ Aplica multi-stage builds y mantén pequeño el contexto con <code>.dockerignore</code>.</li>
+        <li>✔ Ejecuta la aplicación como usuario no root cuando sea posible.</li>
+        <li>✔ No copies contraseñas, tokens ni archivos <code>.env</code> dentro de la imagen.</li>
+        <li>✔ Persiste datos importantes en volúmenes o almacenamiento externo.</li>
+        <li>✔ Usa redes dedicadas y expón solo los puertos necesarios.</li>
+        <li>✔ Define healthchecks realistas y registra logs en stdout/stderr.</li>
+        <li>✔ Fija versiones, analiza vulnerabilidades y reconstruye imágenes para recibir actualizaciones de seguridad.
+        </li>
+        <li>✔ Usa tags inmutables o identificadores de commit en CI/CD.</li>
+        <li>✔ Revisa el alcance de los comandos de limpieza antes de borrar recursos.</li>
+      </ul>
+    </div>
+  </section>
+  <footer class="text-xs text-gray-500 mt-12 border-t border-gray-800 pt-5">Guía de referencia educativa. Adapta
+    imágenes, puertos, rutas de salud, credenciales y nombres de recursos a tu proyecto. Para producción, sigue las
+    políticas de seguridad de tu organización.</footer>
 </div>
