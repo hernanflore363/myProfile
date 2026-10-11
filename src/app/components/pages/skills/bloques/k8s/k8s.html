@@ -1,357 +1,1224 @@
 <div class="min-h-screen bg-[#0d1117] text-gray-200 font-mono">
-
   <!-- TOP BAR (VS CODE STYLE) -->
-
   <div class="bg-[#161b22] px-6 py-3 border-b border-gray-700 flex items-center gap-2">
     <div class="w-3 h-3 bg-red-500 rounded-full"></div>
     <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
     <div class="w-3 h-3 bg-green-500 rounded-full"></div>
     <span class="ml-4 text-sm text-gray-400">kubernetes-architecture.component.html</span>
   </div>
-
-    <div class="p-10 max-w-7xl mx-auto">
-
-
-      <header class="mb-12"><p class="text-cyan-400 text-sm mb-3">GUÍA PRÁCTICA · KUBERNETES</p><h1 class="text-3xl md:text-5xl font-bold text-blue-400 mb-4">Kubernetes Architecture — Production Guide</h1><p class="text-gray-400 text-lg max-w-4xl">De la arquitectura conceptual al despliegue, diagnóstico y operación diaria. Incluye diagramas, manifiestos YAML y comandos habituales.</p>
-<nav class="mt-7 flex flex-wrap gap-2 text-sm">
-<a class="panel px-3 py-2" href="#prerequisitos">Prerequisitos</a><a class="panel px-3 py-2" href="#arquitectura">Arquitectura</a><a class="panel px-3 py-2" href="#componentes">Componentes</a><a class="panel px-3 py-2" href="#workflow">Flujo de desarrollo</a><a class="panel px-3 py-2" href="#kubectl">Kubectl</a><a class="panel px-3 py-2" href="#troubleshooting">Troubleshooting</a><a class="panel px-3 py-2" href="#buenas-practicas">Buenas prácticas</a></nav></header>
-
-<section id="prerequisitos" class="mb-14"><h2 class="text-2xl md:text-3xl font-bold mb-5 text-white">01 · Prerequisitos y contexto</h2><div class="grid md:grid-cols-2 gap-5">
-<article class="panel p-5"><h3 class="text-lg text-cyan-300 mb-3 font-semibold">Antes de ejecutar cambios</h3><ul class="list-disc pl-5 space-y-2 text-sm text-gray-300 text-left"><li>Tener instalado <code>kubectl</code>.</li><li>Contar con kubeconfig y permisos RBAC.</li><li>Confirmar clúster y namespace.</li><li>Verificar que las imágenes estén en un registry accesible.</li></ul></article>
-<article class="panel p-5"><h3 class="text-lg text-cyan-300 mb-3 font-semibold">Comandos iniciales</h3><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre">kubectl version
-kubectl config get-contexts
-kubectl config current-context
-kubectl get nodes
-kubectl get namespaces
-kubectl cluster-info</code></pre><p class="text-xs text-gray-500 mt-3">Confirma el contexto antes de cambiar recursos.</p></article></div></section>
-
-<section id="arquitectura" class="mb-14"><h2 class="text-2xl md:text-3xl font-bold mb-3 text-white">02 · Arquitectura de referencia</h2><p class="text-gray-400 mb-6">El tráfico HTTP/HTTPS entra por el Ingress Controller, llega al Service y se distribuye a Pods administrados por un Deployment. Configuración y almacenamiento son dependencias de la aplicación, no etapas obligatorias de la ruta de red.</p>
-<div class="panel p-5 md:p-8"><div class="max-w-3xl mx-auto space-y-3 text-center">
-<div class="rounded-xl border border-blue-500 bg-blue-950/50 p-4"><b class="text-blue-200">Cliente / Internet</b><p class="text-xs text-gray-400 mt-1">Solicitud HTTP / HTTPS</p></div><div class="text-blue-300 text-2xl">↓</div>
-<div class="rounded-xl border border-purple-500 bg-purple-950/40 p-4"><b class="text-purple-200">Ingress Controller</b><p class="text-xs text-gray-400 mt-1">Entrada, reglas de ruta y TLS según configuración</p></div><div class="text-blue-300 text-2xl">↓</div>
-<div class="rounded-xl border border-yellow-500 bg-yellow-950/30 p-4"><b class="text-yellow-200">Service (ClusterIP)</b><p class="text-xs text-gray-400 mt-1">Endpoint estable para acceder a los Pods</p></div><div class="text-blue-300 text-2xl">↓</div>
-<div class="rounded-xl border border-green-500 bg-green-950/30 p-4"><b class="text-green-200">Deployment → ReplicaSet → Pods</b><p class="text-xs text-gray-400 mt-1">Réplicas, actualizaciones progresivas y recuperación</p></div>
-<div class="grid sm:grid-cols-2 gap-3 pt-2"><div class="rounded-xl border border-cyan-700 bg-cyan-950/30 p-4"><b class="text-cyan-200">ConfigMap / Secret</b><p class="text-xs text-gray-400 mt-1">Configuración y datos sensibles</p></div><div class="rounded-xl border border-orange-700 bg-orange-950/30 p-4"><b class="text-orange-200">PVC → Storage</b><p class="text-xs text-gray-400 mt-1">Persistencia cuando se necesita</p></div></div></div><p class="text-xs text-gray-500 mt-6">StatefulSet es un controlador diferente de Deployment, usado para workloads que necesitan identidad estable y, a menudo, almacenamiento por réplica.</p></div></section>
-
-<section id="componentes" class="mb-14"><h2 class="text-2xl md:text-3xl font-bold mb-3 text-white">03 · Componentes principales</h2><p class="text-gray-400 mb-6">Manifiestos ilustrativos válidos como base. Ajusta nombres, imágenes, puertos y recursos al entorno real. Normalmente se gestionan Pods mediante un Deployment, no creando Pods aislados.</p><div class="grid lg:grid-cols-2 gap-6">
-<article class="panel p-5"><div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-xl text-cyan-300 font-semibold mb-2">Pod</h3><p class="text-sm text-gray-400 mb-4">Unidad de ejecución de uno o más contenedores que comparten red y volúmenes.</p><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre">apiVersion: v1
-kind: Pod
-metadata:
-  name: backend-pod
-  labels:
-    app: backend
-spec:
-  containers:
-    - name: backend
-      image: nginx:1.27
-      ports:
-        - containerPort: 80
-      resources:
-        requests:
-          cpu: "100m"
-          memory: "64Mi"
-        limits:
-          cpu: "500m"
-          memory: "128Mi"
-      livenessProbe:
-        httpGet:
-          path: /
-          port: 80
-  restartPolicy: Always</code></pre><p class="text-xs text-gray-500 mt-3">Uso: pruebas y debugging; no suele ser el patrón de despliegue productivo.</p></div></article>
-
-<article class="panel p-5"><div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-xl text-green-300 font-semibold mb-2">Deployment</h3><p class="text-sm text-gray-400 mb-4">Administra réplicas de Pods y actualizaciones declarativas para aplicaciones stateless.</p><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre">apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: backend
-spec:
-  replicas: 3
-  selector:
-    matchLabels:
+    <div class="min-h-screen">
+      <main class="max-w-7xl mx-auto px-5 md:px-8 py-10">
+        <nav class="mb-10 rounded-xl border border-gray-700 bg-gray-900/60 p-4">
+          <p class="mb-3 text-sm font-bold text-cyan-300">Manual integrado · navegación rápida</p>
+          <div class="flex flex-wrap gap-3 text-sm"><a class="text-cyan-300 underline"
+              href="#instalacion-kong">Instalación Kong</a><a class="text-cyan-300 underline"
+              href="#manifiestos-kong">Todos los YAML</a><a class="text-cyan-300 underline" href="#plugins-kong">Rate
+              limiting</a><a class="text-cyan-300 underline" href="#pruebas-kong">Pruebas</a><a
+              class="text-cyan-300 underline" href="#tls-kong">TLS</a></div>
+        </nav>
+        <header class="mb-12">
+          <p class="text-cyan-400 text-sm mb-3">GUÍA PRÁCTICA · KUBERNETES</p>
+          <h1 class="text-3xl md:text-5xl font-bold text-blue-400 mb-4">Kubernetes + Kong Gateway</h1>
+          <p class="text-gray-400 text-lg max-w-4xl">De la arquitectura conceptual al despliegue, diagnóstico y operación
+            diaria. Incluye diagramas, manifiestos YAML y comandos habituales.</p>
+          <nav class="mt-7 flex flex-wrap gap-2 text-sm">
+            <a class="panel px-3 py-2" href="#prerequisitos">Prerequisitos</a><a class="panel px-3 py-2"
+              href="#arquitectura">Arquitectura</a><a class="panel px-3 py-2" href="#componentes">Componentes</a><a
+              class="panel px-3 py-2" href="#workflow">Flujo de desarrollo</a><a class="panel px-3 py-2"
+              href="#kubectl">Kubectl</a><a class="panel px-3 py-2" href="#troubleshooting">Troubleshooting</a><a
+              class="panel px-3 py-2" href="#buenas-practicas">Buenas prácticas</a>
+          </nav>
+        </header>
+        <section class="mb-14" id="prerequisitos">
+          <h2 class="text-2xl md:text-3xl font-bold mb-5 text-white text-left">01 · Prerequisitos y contexto</h2>
+          <div class="grid md:grid-cols-2 gap-5">
+            <article class="panel p-5">
+              <h3 class="text-lg text-cyan-300 mb-3 font-semibold">Antes de ejecutar cambios</h3>
+              <ul class="list-disc pl-5 space-y-2 text-sm text-gray-300">
+                <li>Tener instalado <code>kubectl</code>.</li>
+                <li>Contar con kubeconfig y permisos RBAC.</li>
+                <li>Confirmar clúster y namespace.</li>
+                <li>Verificar que las imágenes estén en un registry accesible.</li>
+              </ul>
+            </article>
+            <article class="panel p-5">
+              <h3 class="text-lg text-cyan-300 mb-3 font-semibold">Comandos iniciales</h3>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>kubectl version
+              kubectl config get-contexts
+              kubectl config current-context
+              kubectl get nodes
+              kubectl get namespaces
+              kubectl cluster-info</code></pre>
+              <p class="text-xs text-gray-500 mt-3">Confirma el contexto antes de cambiar recursos.</p>
+            </article>
+          </div>
+        </section>
+        <section class="mb-14" id="arquitectura">
+          <h2 class="text-2xl md:text-3xl font-bold mb-3 text-white text-left">02 · Arquitectura de referencia con Kong</h2>
+          <p class="text-gray-400 mb-6 text-left">Kong Gateway procesa las solicitudes HTTP/HTTPS. Kong Ingress Controller (KIC)
+            observa los recursos de Kubernetes y sincroniza rutas y plugins con Kong; KIC es el controlador de
+            configuración, no otro proxy por el que pase cada solicitud.</p>
+          <div class="panel p-5 md:p-8">
+            <div class="max-w-3xl mx-auto space-y-3 text-center">
+              <div class="rounded-xl border border-blue-500 bg-blue-950/50 p-4"><b class="text-blue-200">Cliente / DNS</b>
+                <p class="text-xs text-gray-400 mt-1">Solicitud HTTP / HTTPS</p>
+              </div>
+              <div class="text-blue-300 text-2xl">↓</div>
+              <div class="rounded-xl border border-purple-500 bg-purple-950/40 p-4"><b class="text-purple-200">WAF / Load
+                  Balancer externo (opcional)</b>
+                <p class="text-xs text-gray-400 mt-1">Por ejemplo, WAF → ZEVENET → endpoint de Kong</p>
+              </div>
+              <div class="text-blue-300 text-2xl">↓</div>
+              <div class="rounded-xl border-2 border-pink-500 bg-pink-950/40 p-5"><span
+                  class="text-xs uppercase tracking-wider text-pink-300">Data plane · Tráfico</span>
+                <h3 class="text-xl font-bold text-pink-200 mt-1">Kong Gateway</h3>
+                <p class="text-sm text-gray-300 mt-2">Routing, autenticación, rate limiting y otros plugins</p>
+              </div>
+              <div class="text-blue-300 text-2xl">↓</div>
+              <div class="rounded-xl border border-yellow-500 bg-yellow-950/30 p-4"><b class="text-yellow-200">Service
+                  (ClusterIP)</b>
+                <p class="text-xs text-gray-400 mt-1">Punto estable de acceso al backend</p>
+              </div>
+              <div class="text-blue-300 text-2xl">↓</div>
+              <div class="rounded-xl border border-green-500 bg-green-950/30 p-4"><b class="text-green-200">Deployment →
+                  ReplicaSet → Pods</b>
+                <p class="text-xs text-gray-400 mt-1">Ejecutan las réplicas de la API</p>
+              </div>
+              <div class="grid sm:grid-cols-2 gap-3 pt-2">
+                <div class="rounded-xl border border-cyan-700 bg-cyan-950/30 p-4"><b class="text-cyan-200">ConfigMap /
+                    Secret</b>
+                  <p class="text-xs text-gray-400 mt-1">Configuración de la aplicación</p>
+                </div>
+                <div class="rounded-xl border border-orange-700 bg-orange-950/30 p-4"><b class="text-orange-200">PVC →
+                    Storage</b>
+                  <p class="text-xs text-gray-400 mt-1">Persistencia cuando se necesita</p>
+                </div>
+              </div>
+            </div>
+            <div class="max-w-3xl mx-auto mt-7 rounded-xl border border-dashed border-purple-500 bg-purple-950/20 p-5">
+              <span class="text-xs uppercase tracking-wider text-purple-300">Control plane · Configuración</span>
+              <h3 class="text-lg font-bold text-purple-200 mt-2">Kong Ingress Controller (KIC)</h3>
+              <p class="text-sm text-gray-300 mt-2">Observa Ingress, Services, Secrets y recursos Kong compatibles, y
+                genera la configuración correspondiente para Kong Gateway.</p>
+              <div class="mt-4 text-sm text-purple-200 text-center">Manifiestos Git → API de Kubernetes → KIC →
+                configuración de Kong Gateway</div>
+            </div>
+            <p class="text-xs text-gray-500 mt-6">Importante: el Service de la aplicación es diferente del Service que
+              expone Kong Gateway. Los nombres y la exposición externa dependen de cómo se instaló Kong y de la
+              infraestructura de red.</p>
+            <p class="mt-4 text-sm"><a class="text-cyan-300 underline" href="kubernetes-kong-ingress-tutorial.html">Abrir
+                el tutorial detallado de Kong con instalación, todos los YAML, rate limiting, pruebas y troubleshooting
+                →</a></p>
+          </div>
+        </section>
+        <section class="mb-14" id="componentes">
+          <h2 class="text-2xl md:text-3xl font-bold mb-3 text-white text-left">03 · Componentes principales</h2>
+          <p class="text-gray-400 mb-6 text-left">Manifiestos ilustrativos válidos como base. Ajusta nombres, imágenes, puertos y
+            recursos al entorno real. Normalmente se gestionan Pods mediante un Deployment, no creando Pods aislados.</p>
+          <div class="grid lg:grid-cols-2 gap-6">
+            <article class="panel p-5">
+              <h3 class="text-xl text-cyan-300 font-semibold mb-2">Pod</h3>
+              <p class="text-sm text-gray-400 mb-4 text-left">Unidad de ejecución de uno o más contenedores que comparten red y
+                volúmenes.</p>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>apiVersion: v1
+  kind: Pod
+  metadata:
+    name: backend-pod
+    labels:
       app: backend
-  template:
-    metadata:
-      labels:
-        app: backend
-    spec:
-      containers:
-        - name: backend
-          image: nginx:1.27
-          ports:
-            - containerPort: 80
-          resources:
-            requests:
-              cpu: "100m"
-              memory: "64Mi"
-            limits:
-              cpu: "500m"
-              memory: "128Mi"</code></pre><p class="text-xs text-gray-500 mt-3">Uso: APIs, frontends y servicios sin identidad persistente por Pod.</p></div></article>
-
-<article class="panel p-5"><div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-xl text-yellow-300 font-semibold mb-2">Service</h3><p class="text-sm text-gray-400 mb-4">Dirección estable que selecciona Pods mediante labels.</p><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre">apiVersion: v1
-kind: Service
-metadata:
-  name: backend-service
-spec:
-  type: ClusterIP
-  selector:
-    app: backend
-  ports:
-    - name: http
-      protocol: TCP
-      port: 80
-      targetPort: 80</code></pre><p class="text-xs text-gray-500 mt-3">Uso: comunicación interna; el selector debe coincidir con los labels de los Pods.</p></div></article>
-
-<article class="panel p-5"><div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-xl text-purple-300 font-semibold mb-2">Ingress</h3><p class="text-sm text-gray-400 mb-4">Define reglas HTTP/HTTPS y requiere un Ingress Controller compatible.</p><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre">apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: backend-ingress
-spec:
-  ingressClassName: nginx
-  rules:
-    - host: api.example.com
-      http:
-        paths:
-          - path: /
-            pathType: Prefix
-            backend:
-              service:
-                name: backend-service
-                port:
-                  number: 80</code></pre><p class="text-xs text-gray-500 mt-3">Uso: publicar rutas HTTP. TLS y anotaciones dependen del controlador.</p></div></article>
-
-<article class="panel p-5"><div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-xl text-cyan-200 font-semibold mb-2">ConfigMap</h3><p class="text-sm text-gray-400 mb-4">Almacena configuración no sensible fuera de la imagen.</p><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre">apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: backend-config
-data:
-  ENVIRONMENT: "development"
-  LOG_LEVEL: "INFO"
-  TIMEZONE: "America/La_Paz"</code></pre><p class="text-xs text-gray-500 mt-3">Uso: configuración por ambiente. No guardar contraseñas ni tokens aquí.</p></div></article>
-
-<article class="panel p-5"><div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-xl text-red-300 font-semibold mb-2">Secret</h3><p class="text-sm text-gray-400 mb-4">Almacena datos sensibles; Base64 no equivale a cifrado.</p><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre">apiVersion: v1
-kind: Secret
-metadata:
-  name: backend-secret
-type: Opaque
-stringData:
-  username: "&lt;replace-me&gt;"
-  password: "&lt;replace-me&gt;"</code></pre><p class="text-xs text-gray-500 mt-3">No guardar secretos reales en Git. Aplicar RBAC mínimo y cifrado en reposo según la plataforma.</p></div></article>
-
-<article class="panel p-5"><div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-xl text-orange-300 font-semibold mb-2">PersistentVolumeClaim (PVC)</h3><p class="text-sm text-gray-400 mb-4">Solicita almacenamiento persistente, según la StorageClass disponible.</p><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre">apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: backend-data
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: 5Gi</code></pre><p class="text-xs text-gray-500 mt-3">Uso: datos que deben sobrevivir a la recreación del Pod, según el backend de almacenamiento.</p></div></article>
-    
-<article class="panel p-5"><div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-xl text-pink-300 font-semibold mb-2">StatefulSet</h3><p class="text-sm text-gray-400 mb-4">Gestiona Pods con identidad estable y almacenamiento dedicado por réplica si se configura.</p><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre">apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  name: database
-spec:
-  serviceName: database-headless
-  replicas: 1
-  selector:
-    matchLabels:
-      app: database
-  template:
-    metadata:
-      labels:
-        app: database
-    spec:
-      containers:
-        - name: database
-          image: postgres:16
-          ports:
-            - containerPort: 5432
-          volumeMounts:
-            - name: data
-              mountPath: /var/lib/postgresql/data
-  volumeClaimTemplates:
-    - metadata:
-        name: data
-      spec:
-        accessModes:
-          - ReadWriteOnce
+  spec:
+    containers:
+      - name: backend
+        image: nginx:1.27
+        ports:
+          - containerPort: 80
         resources:
           requests:
-            storage: 10Gi</code></pre><p class="text-xs text-gray-500 mt-3">Uso: workloads con estado. En producción también requiere backups y una estrategia operativa.</p></div></article>
-</div></section>
+            cpu: "100m"
+            memory: "64Mi"
+          limits:
+            cpu: "500m"
+            memory: "128Mi"
+        livenessProbe:
+          httpGet:
+            path: /
+            port: 80
+    restartPolicy: Always</code></pre>
+              <p class="text-xs text-gray-500 mt-3">Uso: pruebas y debugging; no suele ser el patrón de despliegue
+                productivo.</p>
+            </article>
+            <article class="panel p-5">
+              <h3 class="text-xl text-green-300 font-semibold mb-2">Deployment</h3>
+              <p class="text-sm text-gray-400 mb-4 text-left">Administra réplicas de Pods y actualizaciones declarativas para
+                aplicaciones stateless.</p>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: backend
+  spec:
+    replicas: 3
+    selector:
+      matchLabels:
+        app: backend
+    template:
+      metadata:
+        labels:
+          app: backend
+      spec:
+        containers:
+          - name: backend
+            image: nginx:1.27
+            ports:
+              - containerPort: 80
+            resources:
+              requests:
+                cpu: "100m"
+                memory: "64Mi"
+              limits:
+                cpu: "500m"
+                memory: "128Mi"</code></pre>
+              <p class="text-xs text-gray-500 mt-3">Uso: APIs, frontends y servicios sin identidad persistente por Pod.
+              </p>
+            </article>
+            <article class="panel p-5">
+              <h3 class="text-xl text-yellow-300 font-semibold mb-2">Service</h3>
+              <p class="text-sm text-gray-400 mb-4 text-left">Dirección estable que selecciona Pods mediante labels.</p>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>apiVersion: v1
+  kind: Service
+  metadata:
+    name: backend-service
+  spec:
+    type: ClusterIP
+    selector:
+      app: backend
+    ports:
+      - name: http
+        protocol: TCP
+        port: 80
+        targetPort: 80</code></pre>
+              <p class="text-xs text-gray-500 mt-3">Uso: comunicación interna; el selector debe coincidir con los labels
+                de los Pods.</p>
+            </article>
+            <article class="panel p-5">
+              <h3 class="text-xl text-purple-300 font-semibold mb-2">Ingress</h3>
+              <p class="text-sm text-gray-400 mb-4 text-left">Define reglas HTTP/HTTPS y requiere un Ingress Controller compatible.
+              </p>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: backend-ingress
+  spec:
+    ingressClassName: nginx
+    rules:
+      - host: api.example.com
+        http:
+          paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: backend-service
+                  port:
+                    number: 80</code></pre>
+              <p class="text-xs text-gray-500 mt-3">Uso: publicar rutas HTTP. TLS y anotaciones dependen del controlador.
+              </p>
+            </article>
+            <article class="panel p-5">
+              <h3 class="text-xl text-cyan-200 font-semibold mb-2">ConfigMap</h3>
+              <p class="text-sm text-gray-400 mb-4 text-left">Almacena configuración no sensible fuera de la imagen.</p>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>apiVersion: v1
+  kind: ConfigMap
+  metadata:
+    name: backend-config
+  data:
+    ENVIRONMENT: "development"
+    LOG_LEVEL: "INFO"
+    TIMEZONE: "America/La_Paz"</code></pre>
+              <p class="text-xs text-gray-500 mt-3">Uso: configuración por ambiente. No guardar contraseñas ni tokens
+                aquí.</p>
+            </article>
+            <article class="panel p-5">
+              <h3 class="text-xl text-red-300 font-semibold mb-2">Secret</h3>
+              <p class="text-sm text-gray-400 mb-4 text-left">Almacena datos sensibles; Base64 no equivale a cifrado.</p>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>apiVersion: v1
+  kind: Secret
+  metadata:
+    name: backend-secret
+  type: Opaque
+  stringData:
+    username: "&lt;replace-me&gt;"
+    password: "&lt;replace-me&gt;"</code></pre>
+              <p class="text-xs text-gray-500 mt-3">No guardar secretos reales en Git. Aplicar RBAC mínimo y cifrado en
+                reposo según la plataforma.</p>
+            </article>
+            <article class="panel p-5">
+              <h3 class="text-xl text-orange-300 font-semibold mb-2">PersistentVolumeClaim (PVC)</h3>
+              <p class="text-sm text-gray-400 mb-4 text-left">Solicita almacenamiento persistente, según la StorageClass disponible.
+              </p>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>apiVersion: v1
+  kind: PersistentVolumeClaim
+  metadata:
+    name: backend-data
+  spec:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 5Gi</code></pre>
+              <p class="text-xs text-gray-500 mt-3">Uso: datos que deben sobrevivir a la recreación del Pod, según el
+                backend de almacenamiento.</p>
+            </article>
+            <article class="panel p-5">
+              <h3 class="text-xl text-pink-300 font-semibold mb-2">StatefulSet</h3>
+              <p class="text-sm text-gray-400 mb-4 text-left">Gestiona Pods con identidad estable y almacenamiento dedicado por
+                réplica si se configura.</p>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>apiVersion: apps/v1
+  kind: StatefulSet
+  metadata:
+    name: database
+  spec:
+    serviceName: database-headless
+    replicas: 1
+    selector:
+      matchLabels:
+        app: database
+    template:
+      metadata:
+        labels:
+          app: database
+      spec:
+        containers:
+          - name: database
+            image: postgres:16
+            ports:
+              - containerPort: 5432
+            volumeMounts:
+              - name: data
+                mountPath: /var/lib/postgresql/data
+    volumeClaimTemplates:
+      - metadata:
+          name: data
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 10Gi</code></pre>
+              <p class="text-xs text-gray-500 mt-3">Uso: workloads con estado. En producción también requiere backups y
+                una estrategia operativa.</p>
+            </article>
+          </div>
+        </section>
+        <section class="mb-14" id="workflow">
+          <h2 class="text-2xl md:text-3xl font-bold mb-3 text-white text-left">04 · Flujo de desarrollo y despliegue</h2>
+          <p class="text-gray-400 mb-6 text-left">Construye y publica la imagen en un registry accesible, actualiza los manifiestos
+            y aplica los cambios al clúster.</p>
+          <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="panel p-5"><b class="text-blue-300 text-2xl">01</b>
+              <h3 class="font-semibold my-2">Código y pruebas</h3>
+              <p class="text-sm text-gray-400">Git, pruebas unitarias, lint y análisis de seguridad.</p>
+            </div>
+            <div class="panel p-5"><b class="text-blue-300 text-2xl">02</b>
+              <h3 class="font-semibold my-2">Construir imagen</h3>
+              <p class="text-sm text-gray-400">Crear y etiquetar la imagen con una versión identificable.</p>
+            </div>
+            <div class="panel p-5"><b class="text-blue-300 text-2xl">03</b>
+              <h3 class="font-semibold my-2">Publicar y aplicar</h3>
+              <p class="text-sm text-gray-400">Subir al registry y aplicar manifiestos del entorno.</p>
+            </div>
+            <div class="panel p-5"><b class="text-blue-300 text-2xl">04</b>
+              <h3 class="font-semibold my-2">Validar</h3>
+              <p class="text-sm text-gray-400">Revisar rollout, Pods, logs, métricas y endpoint.</p>
+            </div>
+          </div>
+          <pre class="bg-[#0d1117] p-5 rounded mt-5 text-green-300 text-xs md:text-sm overflow-x-auto"><code> 
+            kubectl config current-context
+            kubectl get deployments,pods,services -n dev
+            kubectl diff -f ./k8s/ -n dev
+            kubectl apply -f ./k8s/ -n dev
+            kubectl rollout status deployment/backend -n dev
+            kubectl get pods -n dev -o wide</code></pre>
+        </section>
+        <section class="mb-14" id="kubectl">
+          <h2 class="text-2xl md:text-3xl font-bold text-blue-300 mb-3">05 · Kubectl Developer Cheat Sheet</h2>
+          <p class="text-gray-400 mb-4 text-left">Referencia práctica con el comando, qué hace, cuándo usarlo y qué debes tener en
+            cuenta. Los ejemplos usan el namespace <code>dev</code>; cambia los nombres por los recursos reales de tu
+            clúster.</p>
+          <div class="panel p-4 mb-6 text-sm text-gray-300"><strong class="text-yellow-300">Antes de ejecutar:</strong>
+            confirma siempre el contexto con <code>kubectl config current-context</code>. Un comando correcto ejecutado
+            contra el clúster equivocado puede afectar QA o producción. Los valores entre <code>&lt; &gt;</code> son
+            marcadores: reemplázalos, no los copies literalmente.</div>
+          <div class="space-y-6">
+            <article class="panel p-5">
+              <h3 class="text-lg text-cyan-300 font-semibold mb-3">A. Contexto, clúster y namespaces</h3>
+              <p class="text-gray-400 text-sm mb-4">El contexto indica a qué clúster y usuario se conecta kubectl. El
+                namespace delimita dónde buscar o modificar recursos.</p>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>kubectl version
+  kubectl config get-contexts
+  kubectl config current-context
+  kubectl config use-context &lt;context-name&gt;
+  kubectl cluster-info
+  kubectl get nodes
+  kubectl get namespaces
+  kubectl get pods -n dev
+  kubectl config set-context --current --namespace=dev</code></pre>
+              <dl class="mt-4 space-y-3 text-sm">
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl version</code></dt>
+                  <dd class="text-gray-300">Muestra la versión del cliente kubectl y, si es posible, la del servidor
+                    Kubernetes. Útil para detectar incompatibilidades de versión.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl config get-contexts</code></dt>
+                  <dd class="text-gray-300">Lista los contextos disponibles en tu kubeconfig. El asterisco señala el
+                    contexto actual.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl config current-context</code></dt>
+                  <dd class="text-gray-300">Muestra el contexto activo. Ejecútalo antes de aplicar, actualizar o borrar
+                    recursos.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl config use-context &lt;context-name&gt;</code></dt>
+                  <dd class="text-gray-300">Cambia el contexto activo al indicado. Sustituye el marcador por un nombre que
+                    aparezca en <code>get-contexts</code>.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl cluster-info</code></dt>
+                  <dd class="text-gray-300">Muestra direcciones de servicios centrales del clúster y ayuda a comprobar que
+                    el acceso funciona.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl get nodes</code></dt>
+                  <dd class="text-gray-300">Lista los nodos de cómputo y su estado. Normalmente requiere permisos a nivel
+                    de clúster.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl get namespaces</code></dt>
+                  <dd class="text-gray-300">Lista los namespaces, que separan recursos por entorno, equipo o aplicación.
+                  </dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl get pods -n dev</code></dt>
+                  <dd class="text-gray-300">Lista los Pods del namespace <code>dev</code>. El flag <code>-n</code> evita
+                    depender del namespace por defecto.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl config set-context --current --namespace=dev</code></dt>
+                  <dd class="text-gray-300">Establece <code>dev</code> como namespace predeterminado para el contexto
+                    actual. Es una comodidad local, no crea el namespace.</dd>
+                </div>
+              </dl>
+            </article>
+            <article class="panel p-5">
+              <h3 class="text-lg text-cyan-300 font-semibold mb-3">B. Inspeccionar recursos</h3>
+              <p class="text-gray-400 text-sm mb-4">Usa estos comandos para localizar la aplicación, revisar etiquetas y
+                conocer la configuración efectiva.</p>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>kubectl get pods -n dev
+  kubectl get pods -o wide -n dev
+  kubectl get deployments -n dev
+  kubectl get services -n dev
+  kubectl get ingress -n dev
+  kubectl get configmaps -n dev
+  kubectl get secrets -n dev
+  kubectl get deployments,services,ingress -n dev
+  kubectl get pods --show-labels -n dev
+  kubectl get pods -l app=backend -n dev
+  kubectl get pod &lt;pod-name&gt; -o yaml -n dev
+  kubectl get all -n dev
+  kubectl describe pod &lt;pod-name&gt; -n dev
+  kubectl get events --sort-by=.metadata.creationTimestamp -n dev</code></pre>
+              <dl class="mt-4 space-y-3 text-sm">
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl get pods</code></dt>
+                  <dd class="text-gray-300">Lista los Pods y su estado, por ejemplo <code>Running</code>,
+                    <code>Pending</code> o <code>CrashLoopBackOff</code>.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>-o wide</code></dt>
+                  <dd class="text-gray-300">Añade columnas como nodo e IP del Pod; ayuda a investigar dónde se ejecuta.
+                  </dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>get deployments / services / ingress</code></dt>
+                  <dd class="text-gray-300">Muestra el estado deseado y disponible de los Deployments, los puntos de
+                    acceso internos de Services y las reglas HTTP/HTTPS de Ingress.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>get configmaps / secrets</code></dt>
+                  <dd class="text-gray-300">Lista objetos de configuración. Evita imprimir Secrets completos en terminales
+                    compartidas o logs.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>get deployments,services,ingress</code></dt>
+                  <dd class="text-gray-300">Consulta varios tipos de recursos en una sola ejecución.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>--show-labels</code> y <code>-l app=backend</code></dt>
+                  <dd class="text-gray-300">Muestra las etiquetas o filtra recursos por selector. Las etiquetas deben
+                    coincidir con las definidas en los manifiestos.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>-o yaml</code></dt>
+                  <dd class="text-gray-300">Imprime el objeto completo en YAML tal como está almacenado en el clúster,
+                    incluidos campos administrados por Kubernetes. No siempre es un manifiesto limpio para volver a
+                    versionar.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl get all</code></dt>
+                  <dd class="text-gray-300">Ofrece un resumen de varios recursos comunes, pero <strong>no incluye
+                      todos</strong>: consulta por separado Secrets, ConfigMaps, PVC e Ingress, entre otros.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl describe pod</code></dt>
+                  <dd class="text-gray-300">Presenta detalles, condiciones, contenedores, montajes y eventos asociados al
+                    Pod.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl get events --sort-by=...</code></dt>
+                  <dd class="text-gray-300">Ordena eventos por fecha de creación para ver advertencias recientes, como
+                    fallos al descargar imágenes o problemas de scheduling.</dd>
+                </div>
+              </dl>
+            </article>
+            <article class="panel p-5">
+              <h3 class="text-lg text-green-300 font-semibold mb-3">C. Crear, aplicar, escalar y reiniciar</h3>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code># Crear un Deployment de ejemplo (no sustituye un manifiesto versionado)
+  kubectl create deployment backend --image=my-registry/backend:v1 -n dev
 
-<section id="workflow" class="mb-14"><h2 class="text-2xl md:text-3xl font-bold mb-3 text-white">04 · Flujo de desarrollo y despliegue</h2><p class="text-gray-400 mb-6">Construye y publica la imagen en un registry accesible, actualiza los manifiestos y aplica los cambios al clúster.</p><div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-<div class="panel p-5"><b class="text-blue-300 text-2xl">01</b><h3 class="font-semibold my-2">Código y pruebas</h3><p class="text-sm text-gray-400">Git, pruebas unitarias, lint y análisis de seguridad.</p></div><div class="panel p-5"><b class="text-blue-300 text-2xl">02</b><h3 class="font-semibold my-2">Construir imagen</h3><p class="text-sm text-gray-400">Crear y etiquetar la imagen con una versión identificable.</p></div><div class="panel p-5"><b class="text-blue-300 text-2xl">03</b><h3 class="font-semibold my-2">Publicar y aplicar</h3><p class="text-sm text-gray-400">Subir al registry y aplicar manifiestos del entorno.</p></div><div class="panel p-5"><b class="text-blue-300 text-2xl">04</b><h3 class="font-semibold my-2">Validar</h3><p class="text-sm text-gray-400">Revisar rollout, Pods, logs, métricas y endpoint.</p></div></div>
-<div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre">kubectl config current-context
-kubectl get deployments,pods,services -n dev
-kubectl diff -f ./k8s/ -n dev
-kubectl apply -f ./k8s/ -n dev
-kubectl rollout status deployment/backend -n dev
-kubectl get pods -n dev -o wide</code></pre></div></section>
+  # Aplicar los manifiestos YAML de un archivo o directorio
+  kubectl apply -f deployment.yaml -n dev
+  kubectl apply -f ./k8s/ -n dev
 
-<section id="kubectl" class="mb-14"><h2 class="text-2xl md:text-3xl font-bold text-blue-300 mb-3">05 · Kubectl Developer Cheat Sheet</h2><p class="text-gray-400 mb-4">Referencia práctica con el comando, qué hace, cuándo usarlo y qué debes tener en cuenta. Los ejemplos usan el namespace <code>dev</code>; cambia los nombres por los recursos reales de tu clúster.</p><div class="panel p-4 mb-6 text-sm text-gray-300"><strong class="text-yellow-300">Antes de ejecutar:</strong> confirma siempre el contexto con <code>kubectl config current-context</code>. Un comando correcto ejecutado contra el clúster equivocado puede afectar QA o producción. Los valores entre <code>&lt; &gt;</code> son marcadores: reemplázalos, no los copies literalmente.</div><div class="space-y-6">
-<article class="panel p-5"><div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-lg text-cyan-300 font-semibold mb-3">A. Contexto, clúster y namespaces</h3><p class="text-gray-400 text-sm mb-4">El contexto indica a qué clúster y usuario se conecta kubectl. El namespace delimita dónde buscar o modificar recursos.</p><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre">kubectl version
-kubectl config get-contexts
-kubectl config current-context
-kubectl config use-context &lt;context-name&gt;
-kubectl cluster-info
-kubectl get nodes
-kubectl get namespaces
-kubectl get pods -n dev
-kubectl config set-context --current --namespace=dev</code></pre><dl class="mt-4 space-y-3 text-sm text-left"><div><dt class="text-cyan-200"><code>kubectl version</code></dt><dd class="text-gray-300">Muestra la versión del cliente kubectl y, si es posible, la del servidor Kubernetes. Útil para detectar incompatibilidades de versión.</dd></div><div><dt class="text-cyan-200"><code>kubectl config get-contexts</code></dt><dd class="text-gray-300">Lista los contextos disponibles en tu kubeconfig. El asterisco señala el contexto actual.</dd></div><div><dt class="text-cyan-200"><code>kubectl config current-context</code></dt><dd class="text-gray-300">Muestra el contexto activo. Ejecútalo antes de aplicar, actualizar o borrar recursos.</dd></div><div><dt class="text-cyan-200"><code>kubectl config use-context &lt;context-name&gt;</code></dt><dd class="text-gray-300">Cambia el contexto activo al indicado. Sustituye el marcador por un nombre que aparezca en <code>get-contexts</code>.</dd></div><div><dt class="text-cyan-200"><code>kubectl cluster-info</code></dt><dd class="text-gray-300">Muestra direcciones de servicios centrales del clúster y ayuda a comprobar que el acceso funciona.</dd></div><div><dt class="text-cyan-200"><code>kubectl get nodes</code></dt><dd class="text-gray-300">Lista los nodos de cómputo y su estado. Normalmente requiere permisos a nivel de clúster.</dd></div><div><dt class="text-cyan-200"><code>kubectl get namespaces</code></dt><dd class="text-gray-300">Lista los namespaces, que separan recursos por entorno, equipo o aplicación.</dd></div><div><dt class="text-cyan-200"><code>kubectl get pods -n dev</code></dt><dd class="text-gray-300">Lista los Pods del namespace <code>dev</code>. El flag <code>-n</code> evita depender del namespace por defecto.</dd></div><div><dt class="text-cyan-200"><code>kubectl config set-context --current --namespace=dev</code></dt><dd class="text-gray-300">Establece <code>dev</code> como namespace predeterminado para el contexto actual. Es una comodidad local, no crea el namespace.</dd></div></dl></div></article>
-<article class="panel p-5"><div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-lg text-cyan-300 font-semibold mb-3">B. Inspeccionar recursos</h3><p class="text-gray-400 text-sm mb-4">Usa estos comandos para localizar la aplicación, revisar etiquetas y conocer la configuración efectiva.</p><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre">kubectl get pods -n dev
-kubectl get pods -o wide -n dev
-kubectl get deployments -n dev
-kubectl get services -n dev
-kubectl get ingress -n dev
-kubectl get configmaps -n dev
-kubectl get secrets -n dev
-kubectl get deployments,services,ingress -n dev
-kubectl get pods --show-labels -n dev
-kubectl get pods -l app=backend -n dev
-kubectl get pod &lt;pod-name&gt; -o yaml -n dev
-kubectl get all -n dev
-kubectl describe pod &lt;pod-name&gt; -n dev
-kubectl get events --sort-by=.metadata.creationTimestamp -n dev</code></pre><dl class="mt-4 space-y-3 text-sm text-left"><div><dt class="text-cyan-200"><code>kubectl get pods</code></dt><dd class="text-gray-300">Lista los Pods y su estado, por ejemplo <code>Running</code>, <code>Pending</code> o <code>CrashLoopBackOff</code>.</dd></div><div><dt class="text-cyan-200"><code>-o wide</code></dt><dd class="text-gray-300">Añade columnas como nodo e IP del Pod; ayuda a investigar dónde se ejecuta.</dd></div><div><dt class="text-cyan-200"><code>get deployments / services / ingress</code></dt><dd class="text-gray-300">Muestra el estado deseado y disponible de los Deployments, los puntos de acceso internos de Services y las reglas HTTP/HTTPS de Ingress.</dd></div><div><dt class="text-cyan-200"><code>get configmaps / secrets</code></dt><dd class="text-gray-300">Lista objetos de configuración. Evita imprimir Secrets completos en terminales compartidas o logs.</dd></div><div><dt class="text-cyan-200"><code>get deployments,services,ingress</code></dt><dd class="text-gray-300">Consulta varios tipos de recursos en una sola ejecución.</dd></div><div><dt class="text-cyan-200"><code>--show-labels</code> y <code>-l app=backend</code></dt><dd class="text-gray-300">Muestra las etiquetas o filtra recursos por selector. Las etiquetas deben coincidir con las definidas en los manifiestos.</dd></div><div><dt class="text-cyan-200"><code>-o yaml</code></dt><dd class="text-gray-300">Imprime el objeto completo en YAML tal como está almacenado en el clúster, incluidos campos administrados por Kubernetes. No siempre es un manifiesto limpio para volver a versionar.</dd></div><div><dt class="text-cyan-200"><code>kubectl get all</code></dt><dd class="text-gray-300">Ofrece un resumen de varios recursos comunes, pero <strong>no incluye todos</strong>: consulta por separado Secrets, ConfigMaps, PVC e Ingress, entre otros.</dd></div><div><dt class="text-cyan-200"><code>kubectl describe pod</code></dt><dd class="text-gray-300">Presenta detalles, condiciones, contenedores, montajes y eventos asociados al Pod.</dd></div><div><dt class="text-cyan-200"><code>kubectl get events --sort-by=...</code></dt><dd class="text-gray-300">Ordena eventos por fecha de creación para ver advertencias recientes, como fallos al descargar imágenes o problemas de scheduling.</dd></div></dl></div></article>
-<article class="panel p-5"><div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-lg text-green-300 font-semibold mb-3">C. Crear, aplicar, escalar y reiniciar</h3><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre"># Crear un Deployment de ejemplo (no sustituye un manifiesto versionado)
-kubectl create deployment backend --image=my-registry/backend:v1 -n dev
+  # Ver qué cambiaría antes de aplicarlo
+  kubectl diff -f ./k8s/ -n dev
 
-# Aplicar los manifiestos YAML de un archivo o directorio
-kubectl apply -f deployment.yaml -n dev
-kubectl apply -f ./k8s/ -n dev
+  # Esperar al resultado del despliegue y observar los Pods
+  kubectl rollout status deployment/backend -n dev
+  kubectl get pods -w -n dev
 
-# Ver qué cambiaría antes de aplicarlo
-kubectl diff -f ./k8s/ -n dev
+  # Ajustar el número de réplicas
+  kubectl scale deployment/backend --replicas=3 -n dev
 
-# Esperar al resultado del despliegue y observar los Pods
-kubectl rollout status deployment/backend -n dev
-kubectl get pods -w -n dev
+  # Reiniciar gradualmente los Pods del Deployment
+  kubectl rollout restart deployment/backend -n dev</code></pre>
+              <dl class="mt-4 space-y-3 text-sm">
+                <div class="text-left">
+                  <dt class="text-green-200"><code>kubectl create deployment</code></dt>
+                  <dd class="text-gray-300">Crea rápidamente un Deployment a partir de una imagen. Es práctico para
+                    pruebas; en proyectos reales suele convenir mantener el YAML en Git.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-green-200"><code>kubectl apply -f</code></dt>
+                  <dd class="text-gray-300">Crea o actualiza recursos declarados en YAML. Kubernetes intenta hacer que el
+                    estado real coincida con la configuración deseada.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-green-200"><code>kubectl diff -f</code></dt>
+                  <dd class="text-gray-300">Compara el manifiesto local con la configuración del clúster y muestra
+                    diferencias previstas; no aplica los cambios.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-green-200"><code>kubectl rollout status</code></dt>
+                  <dd class="text-gray-300">Espera y muestra si el Deployment termina su actualización correctamente. Si
+                    no avanza, revisa Pods, eventos y logs.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-green-200"><code>kubectl get pods -w</code></dt>
+                  <dd class="text-gray-300">Se queda observando cambios en tiempo real; pulsa <code>Ctrl+C</code> para
+                    salir.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-green-200"><code>kubectl scale</code></dt>
+                  <dd class="text-gray-300">Cambia el número deseado de réplicas. La capacidad real también depende de
+                    recursos disponibles y políticas del clúster.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-green-200"><code>kubectl rollout restart</code></dt>
+                  <dd class="text-gray-300">Provoca una recreación gradual de los Pods del Deployment. Puede servir para
+                    que la aplicación vuelva a cargar configuración montada; no actualiza por sí solo la imagen.</dd>
+                </div>
+              </dl>
+            </article>
+            <article class="panel p-5">
+              <h3 class="text-lg text-green-300 font-semibold mb-3">D. Actualizar imágenes y revertir despliegues</h3>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>kubectl set image deployment/backend backend=my-registry/backend:v2 -n dev
+  kubectl rollout status deployment/backend -n dev
+  kubectl rollout history deployment/backend -n dev
+  kubectl rollout history deployment/backend --revision=2 -n dev
+  kubectl rollout undo deployment/backend -n dev
+  kubectl rollout undo deployment/backend --to-revision=2 -n dev
+  kubectl get deployment backend -o jsonpath='.spec.template.spec.containers[*].image' -n dev</code></pre>
+              <dl class="mt-4 space-y-3 text-sm">
+                <div class="text-left">
+                  <dt class="text-green-200"><code>kubectl set image</code></dt>
+                  <dd class="text-gray-300">Cambia la imagen de un contenedor dentro del Deployment. En
+                    <code>backend=...</code>, el primer <code>backend</code> es el nombre del contenedor definido en el
+                    Pod template; puede ser distinto al nombre del Deployment.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-green-200"><code>rollout status</code></dt>
+                  <dd class="text-gray-300">Comprueba que las nuevas réplicas estén listas y que la actualización avance.
+                  </dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-green-200"><code>rollout history</code></dt>
+                  <dd class="text-gray-300">Lista las revisiones de rollout. Con <code>--revision=2</code> muestra
+                    detalles de una revisión específica cuando existe.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-green-200"><code>rollout undo</code></dt>
+                  <dd class="text-gray-300">Revierte el Deployment a una revisión anterior; con
+                    <code>--to-revision=2</code> intenta volver a esa revisión concreta. Revisa el resultado después de
+                    revertir.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-green-200"><code>-o jsonpath=...</code></dt>
+                  <dd class="text-gray-300">Extrae únicamente las imágenes configuradas, sin imprimir todo el objeto. Si
+                    hay varios contenedores, puede devolver varias imágenes.</dd>
+                </div>
+              </dl>
+              <p class="text-sm text-yellow-200 mt-4">Importante: la imagen debe existir en un registry accesible por los
+                nodos y el clúster debe tener credenciales si el registry es privado. Preferí etiquetas inmutables o
+                digest; reutilizar <code>latest</code> puede dificultar saber qué versión se ejecuta.</p>
+            </article>
+            <article class="panel p-5">
+              <h3 class="text-lg text-yellow-300 font-semibold mb-3">E. Logs y diagnóstico</h3>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>kubectl logs &lt;pod-name&gt; -n dev
+  kubectl logs &lt;pod-name&gt; -n dev --tail=100
+  kubectl logs -f &lt;pod-name&gt; -n dev
+  kubectl logs &lt;pod-name&gt; -n dev --since=10m
+  kubectl logs &lt;pod-name&gt; -c &lt;container-name&gt; -n dev
+  kubectl logs &lt;pod-name&gt; -n dev --previous
+  kubectl logs deployment/backend -n dev --all-containers=true
+  kubectl describe pod &lt;pod-name&gt; -n dev
+  kubectl describe deployment backend -n dev
+  kubectl get events --sort-by=.metadata.creationTimestamp -n dev
+  kubectl top pods -n dev
+  kubectl top nodes</code></pre>
+              <dl class="mt-4 space-y-3 text-sm">
+                <div class="text-left">
+                  <dt class="text-yellow-200"><code>kubectl logs</code></dt>
+                  <dd class="text-gray-300">Muestra la salida estándar y de error del contenedor; empieza aquí cuando la
+                    API responde con errores o el proceso termina.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-yellow-200"><code>--tail=100</code> / <code>--since=10m</code></dt>
+                  <dd class="text-gray-300">Limita la salida a las últimas 100 líneas o a los últimos 10 minutos para
+                    evitar volcar demasiada información.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-yellow-200"><code>-f</code></dt>
+                  <dd class="text-gray-300">Sigue los logs en tiempo real. Termina la lectura con <code>Ctrl+C</code>.
+                  </dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-yellow-200"><code>-c &lt;container-name&gt;</code></dt>
+                  <dd class="text-gray-300">Selecciona un contenedor específico cuando el Pod tiene más de uno.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-yellow-200"><code>--previous</code></dt>
+                  <dd class="text-gray-300">Consulta los logs de la instancia anterior del contenedor, si está disponible.
+                    Es especialmente útil con <code>CrashLoopBackOff</code>.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-yellow-200"><code>logs deployment/backend --all-containers=true</code></dt>
+                  <dd class="text-gray-300">Recoge logs de los Pods asociados al Deployment e incluye todos sus
+                    contenedores; si el selector no identifica lo esperado, consulta directamente el Pod.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-yellow-200"><code>kubectl describe</code></dt>
+                  <dd class="text-gray-300">Muestra configuración resumida y eventos relevantes para entender por qué un
+                    Pod no arranca o un Deployment no progresa.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-yellow-200"><code>kubectl top pods / nodes</code></dt>
+                  <dd class="text-gray-300">Muestra uso actual de CPU y memoria. Requiere Metrics Server (u otra
+                    integración compatible) y permisos adecuados.</dd>
+                </div>
+              </dl>
+            </article>
+            <article class="panel p-5">
+              <h3 class="text-lg text-orange-300 font-semibold mb-3">F. Entrar en un contenedor y ejecutar comandos</h3>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>kubectl exec -it &lt;pod-name&gt; -n dev -- /bin/sh
+  kubectl exec -it &lt;pod-name&gt; -c &lt;container-name&gt; -n dev -- /bin/sh
+  kubectl exec &lt;pod-name&gt; -n dev -- printenv
+  kubectl exec &lt;pod-name&gt; -n dev -- ls -la /app</code></pre>
+              <dl class="mt-4 space-y-3 text-sm">
+                <div class="text-left">
+                  <dt class="text-orange-200"><code>kubectl exec -it ... -- /bin/sh</code></dt>
+                  <dd class="text-gray-300">Abre una shell interactiva dentro del contenedor para inspeccionar archivos o
+                    procesos. <code>-i</code> mantiene la entrada abierta; <code>-t</code> asigna una terminal;
+                    <code>--</code> separa los argumentos de kubectl del comando remoto.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-orange-200"><code>-c &lt;container-name&gt;</code></dt>
+                  <dd class="text-gray-300">Selecciona el contenedor correcto dentro de un Pod multi-contenedor.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-orange-200"><code>printenv</code> / <code>ls -la /app</code></dt>
+                  <dd class="text-gray-300">Ejecuta un comando y sale; permite revisar variables o archivos sin abrir una
+                    shell. No compartas la salida de variables que puedan contener secretos.</dd>
+                </div>
+              </dl>
+              <p class="text-sm text-yellow-200 mt-4">Algunas imágenes mínimas no incluyen <code>/bin/sh</code>, Bash,
+                curl ni herramientas de diagnóstico. En ese caso usa logs, eventos o un contenedor de depuración aprobado
+                por tu equipo.</p>
+            </article>
+            <article class="panel p-5">
+              <h3 class="text-lg text-cyan-300 font-semibold mb-3">G. Port forwarding y pruebas de API</h3>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code># Reenvía localhost:8080 al puerto 80 del Service
+  kubectl port-forward service/backend-service 8080:80 -n dev
 
-# Ajustar el número de réplicas
-kubectl scale deployment/backend --replicas=3 -n dev
+  # O directamente al puerto del Pod
+  kubectl port-forward pod/&lt;pod-name&gt; 8080:8080 -n dev
 
-# Reiniciar gradualmente los Pods del Deployment
-kubectl rollout restart deployment/backend -n dev</code></pre><dl class="mt-4 space-y-3 text-sm text-left"><div><dt class="text-green-200"><code>kubectl create deployment</code></dt><dd class="text-gray-300">Crea rápidamente un Deployment a partir de una imagen. Es práctico para pruebas; en proyectos reales suele convenir mantener el YAML en Git.</dd></div><div><dt class="text-green-200"><code>kubectl apply -f</code></dt><dd class="text-gray-300">Crea o actualiza recursos declarados en YAML. Kubernetes intenta hacer que el estado real coincida con la configuración deseada.</dd></div><div><dt class="text-green-200"><code>kubectl diff -f</code></dt><dd class="text-gray-300">Compara el manifiesto local con la configuración del clúster y muestra diferencias previstas; no aplica los cambios.</dd></div><div><dt class="text-green-200"><code>kubectl rollout status</code></dt><dd class="text-gray-300">Espera y muestra si el Deployment termina su actualización correctamente. Si no avanza, revisa Pods, eventos y logs.</dd></div><div><dt class="text-green-200"><code>kubectl get pods -w</code></dt><dd class="text-gray-300">Se queda observando cambios en tiempo real; pulsa <code>Ctrl+C</code> para salir.</dd></div><div><dt class="text-green-200"><code>kubectl scale</code></dt><dd class="text-gray-300">Cambia el número deseado de réplicas. La capacidad real también depende de recursos disponibles y políticas del clúster.</dd></div><div><dt class="text-green-200"><code>kubectl rollout restart</code></dt><dd class="text-gray-300">Provoca una recreación gradual de los Pods del Deployment. Puede servir para que la aplicación vuelva a cargar configuración montada; no actualiza por sí solo la imagen.</dd></div></dl></div></article>
-<article class="panel p-5"><div class="bg-[#161b22] border border-gray-700 rounded-xl p-5"><h3 class="text-lg text-green-300 font-semibold mb-3">D. Actualizar imágenes y revertir despliegues</h3><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre">kubectl set image deployment/backend backend=my-registry/backend:v2 -n dev
-kubectl rollout status deployment/backend -n dev
-kubectl rollout history deployment/backend -n dev
-kubectl rollout history deployment/backend --revision=2 -n dev
-kubectl rollout undo deployment/backend -n dev
-kubectl rollout undo deployment/backend --to-revision=2 -n dev
-kubectl get deployment backend -o jsonpath='.spec.template.spec.containers[*].image' -n dev</code></pre><dl class="mt-4 space-y-3 text-sm text-left"><div><dt class="text-green-200"><code>kubectl set image</code></dt><dd class="text-gray-300">Cambia la imagen de un contenedor dentro del Deployment. En <code>backend=...</code>, el primer <code>backend</code> es el nombre del contenedor definido en el Pod template; puede ser distinto al nombre del Deployment.</dd></div><div><dt class="text-green-200"><code>rollout status</code></dt><dd class="text-gray-300">Comprueba que las nuevas réplicas estén listas y que la actualización avance.</dd></div><div><dt class="text-green-200"><code>rollout history</code></dt><dd class="text-gray-300">Lista las revisiones de rollout. Con <code>--revision=2</code> muestra detalles de una revisión específica cuando existe.</dd></div><div><dt class="text-green-200"><code>rollout undo</code></dt><dd class="text-gray-300">Revierte el Deployment a una revisión anterior; con <code>--to-revision=2</code> intenta volver a esa revisión concreta. Revisa el resultado después de revertir.</dd></div><div><dt class="text-green-200"><code>-o jsonpath=...</code></dt><dd class="text-gray-300">Extrae únicamente las imágenes configuradas, sin imprimir todo el objeto. Si hay varios contenedores, puede devolver varias imágenes.</dd></div></dl><p class="text-sm text-yellow-200 mt-4">Importante: la imagen debe existir en un registry accesible por los nodos y el clúster debe tener credenciales si el registry es privado. Preferí etiquetas inmutables o digest; reutilizar <code>latest</code> puede dificultar saber qué versión se ejecuta.</p></div></article>
-<article class="panel p-5"><h3 class="text-lg text-yellow-300 font-semibold mb-3">E. Logs y diagnóstico</h3><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre">kubectl logs &lt;pod-name&gt; -n dev
-kubectl logs &lt;pod-name&gt; -n dev --tail=100
-kubectl logs -f &lt;pod-name&gt; -n dev
-kubectl logs &lt;pod-name&gt; -n dev --since=10m
-kubectl logs &lt;pod-name&gt; -c &lt;container-name&gt; -n dev
-kubectl logs &lt;pod-name&gt; -n dev --previous
-kubectl logs deployment/backend -n dev --all-containers=true
-kubectl describe pod &lt;pod-name&gt; -n dev
-kubectl describe deployment backend -n dev
-kubectl get events --sort-by=.metadata.creationTimestamp -n dev
-kubectl top pods -n dev
-kubectl top nodes</code></pre><dl class="mt-4 space-y-3 text-sm text-left"><div><dt class="text-yellow-200"><code>kubectl logs</code></dt><dd class="text-gray-300">Muestra la salida estándar y de error del contenedor; empieza aquí cuando la API responde con errores o el proceso termina.</dd></div><div><dt class="text-yellow-200"><code>--tail=100</code> / <code>--since=10m</code></dt><dd class="text-gray-300">Limita la salida a las últimas 100 líneas o a los últimos 10 minutos para evitar volcar demasiada información.</dd></div><div><dt class="text-yellow-200"><code>-f</code></dt><dd class="text-gray-300">Sigue los logs en tiempo real. Termina la lectura con <code>Ctrl+C</code>.</dd></div><div><dt class="text-yellow-200"><code>-c &lt;container-name&gt;</code></dt><dd class="text-gray-300">Selecciona un contenedor específico cuando el Pod tiene más de uno.</dd></div><div><dt class="text-yellow-200"><code>--previous</code></dt><dd class="text-gray-300">Consulta los logs de la instancia anterior del contenedor, si está disponible. Es especialmente útil con <code>CrashLoopBackOff</code>.</dd></div><div><dt class="text-yellow-200"><code>logs deployment/backend --all-containers=true</code></dt><dd class="text-gray-300">Recoge logs de los Pods asociados al Deployment e incluye todos sus contenedores; si el selector no identifica lo esperado, consulta directamente el Pod.</dd></div><div><dt class="text-yellow-200"><code>kubectl describe</code></dt><dd class="text-gray-300">Muestra configuración resumida y eventos relevantes para entender por qué un Pod no arranca o un Deployment no progresa.</dd></div><div><dt class="text-yellow-200"><code>kubectl top pods / nodes</code></dt><dd class="text-gray-300">Muestra uso actual de CPU y memoria. Requiere Metrics Server (u otra integración compatible) y permisos adecuados.</dd></div></dl></article>
-<article class="panel p-5"><h3 class="text-lg text-orange-300 font-semibold mb-3">F. Entrar en un contenedor y ejecutar comandos</h3><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre">kubectl exec -it &lt;pod-name&gt; -n dev -- /bin/sh
-kubectl exec -it &lt;pod-name&gt; -c &lt;container-name&gt; -n dev -- /bin/sh
-kubectl exec &lt;pod-name&gt; -n dev -- printenv
-kubectl exec &lt;pod-name&gt; -n dev -- ls -la /app</code></pre><dl class="mt-4 space-y-3 text-sm text-left"><div><dt class="text-orange-200"><code>kubectl exec -it ... -- /bin/sh</code></dt><dd class="text-gray-300">Abre una shell interactiva dentro del contenedor para inspeccionar archivos o procesos. <code>-i</code> mantiene la entrada abierta; <code>-t</code> asigna una terminal; <code>--</code> separa los argumentos de kubectl del comando remoto.</dd></div><div><dt class="text-orange-200"><code>-c &lt;container-name&gt;</code></dt><dd class="text-gray-300">Selecciona el contenedor correcto dentro de un Pod multi-contenedor.</dd></div><div><dt class="text-orange-200"><code>printenv</code> / <code>ls -la /app</code></dt><dd class="text-gray-300">Ejecuta un comando y sale; permite revisar variables o archivos sin abrir una shell. No compartas la salida de variables que puedan contener secretos.</dd></div></dl><p class="text-sm text-yellow-200 mt-4">Algunas imágenes mínimas no incluyen <code>/bin/sh</code>, Bash, curl ni herramientas de diagnóstico. En ese caso usa logs, eventos o un contenedor de depuración aprobado por tu equipo.</p></article>
-<article class="panel p-5"><h3 class="text-lg text-cyan-300 font-semibold mb-3">G. Port forwarding y pruebas de API</h3><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre"># Reenvía localhost:8080 al puerto 80 del Service
-kubectl port-forward service/backend-service 8080:80 -n dev
+  # En otra terminal, probar endpoints
+  curl -i http://localhost:8080/health
+  curl -i http://localhost:8080/api/users
 
-# O directamente al puerto del Pod
-kubectl port-forward pod/&lt;pod-name&gt; 8080:8080 -n dev
+  # Petición POST con JSON válido
+  curl -X POST http://localhost:8080/api/users \
+    -H "Content-Type: application/json" \
+    -d '"name":"Hernan"'</code></pre>
+              <dl class="mt-4 space-y-3 text-sm">
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl port-forward service/backend-service 8080:80</code></dt>
+                  <dd class="text-gray-300">Abre un túnel temporal desde el puerto local 8080 al puerto 80 del Service. El
+                    formato es <code>PUERTO_LOCAL:PUERTO_REMOTO</code>; el Service debe existir en el namespace indicado.
+                  </dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl port-forward pod/...</code></dt>
+                  <dd class="text-gray-300">Envía tráfico directamente a un Pod, útil para aislar una prueba del Service o
+                    Ingress.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>curl -i</code></dt>
+                  <dd class="text-gray-300">Hace una petición HTTP y muestra también los encabezados de respuesta,
+                    incluido el código HTTP.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>curl -X POST ... -H ... -d ...</code></dt>
+                  <dd class="text-gray-300">Envía una petición POST con el encabezado que declara JSON y un cuerpo JSON
+                    válido. Ajusta ruta, autenticación y estructura según la API real.</dd>
+                </div>
+              </dl>
+              <p class="text-sm text-yellow-200 mt-4">Mantén abierta la terminal donde corre <code>port-forward</code>
+                mientras pruebas desde otra terminal. Al pulsar <code>Ctrl+C</code>, el túnel se cierra.</p>
+            </article>
+            <article class="panel p-5">
+              <h3 class="text-lg text-cyan-300 font-semibold mb-3">H. Namespaces, ConfigMaps y Secrets</h3>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>kubectl create namespace dev
+  kubectl get pods -n dev
+  kubectl create configmap backend-config --from-literal=LOG_LEVEL=DEBUG -n dev
+  kubectl describe configmap backend-config -n dev
+  kubectl create secret generic backend-secret --from-literal=API_KEY='&lt;your-api-key&gt;' -n dev
+  kubectl describe secret backend-secret -n dev
+  kubectl get configmaps,secrets -n dev</code></pre>
+              <dl class="mt-4 space-y-3 text-sm">
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl create namespace dev</code></dt>
+                  <dd class="text-gray-300">Crea un namespace para agrupar recursos. Si ya existe, el comando puede
+                    informar que el recurso ya existe.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl create configmap ... --from-literal</code></dt>
+                  <dd class="text-gray-300">Crea un ConfigMap con pares clave/valor no confidenciales, por ejemplo el
+                    nivel de logs. La aplicación debe referenciarlo como variable de entorno o volumen para utilizarlo.
+                  </dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl create secret generic ...</code></dt>
+                  <dd class="text-gray-300">Crea un Secret para datos sensibles. El texto de ejemplo es un marcador, no
+                    una credencial real. Los argumentos pueden quedar registrados en el historial del shell; para secretos
+                    reales prefiere el mecanismo aprobado por tu organización.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-cyan-200"><code>kubectl describe configmap/secret</code></dt>
+                  <dd class="text-gray-300">Muestra metadatos y detalles del recurso. Aun así, evita exponer datos
+                    sensibles en capturas, logs o sesiones compartidas.</dd>
+                </div>
+              </dl>
+              <p class="text-sm text-red-200 mt-4">Seguridad: Base64 no es cifrado. Restringe el acceso con RBAC, habilita
+                cifrado en reposo cuando corresponda y no guardes credenciales reales en Git.</p>
+            </article>
+            <article class="panel p-5">
+              <h3 class="text-lg text-pink-300 font-semibold mb-3">I. Ayuda, validación y limpieza</h3>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>kubectl api-resources
+  kubectl explain deployment
+  kubectl explain deployment.spec
+  kubectl apply --dry-run=client -f deployment.yaml
+  kubectl diff -f ./k8s/ -n dev
+  kubectl delete pod &lt;pod-name&gt; -n dev
+  kubectl delete deployment backend -n dev
+  kubectl delete -f deployment.yaml -n dev
+  kubectl delete namespace dev</code></pre>
+              <dl class="mt-4 space-y-3 text-sm">
+                <div class="text-left">
+                  <dt class="text-pink-200"><code>kubectl api-resources</code></dt>
+                  <dd class="text-gray-300">Lista los tipos de recursos que la API de este clúster reconoce, incluidos sus
+                    nombres abreviados y si son namespaced.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-pink-200"><code>kubectl explain deployment</code></dt>
+                  <dd class="text-gray-300">Muestra la documentación de campos de un recurso. Añade rutas como
+                    <code>deployment.spec</code> para explorar sus propiedades.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-pink-200"><code>--dry-run=client</code></dt>
+                  <dd class="text-gray-300">Valida y procesa el manifiesto localmente sin crear ni modificar recursos en
+                    el clúster. No sustituye todas las validaciones del servidor.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-pink-200"><code>kubectl delete pod</code></dt>
+                  <dd class="text-gray-300">Borra un Pod concreto. Si pertenece a un Deployment, ReplicaSet u otro
+                    controlador, normalmente se creará un reemplazo para mantener el estado deseado.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-pink-200"><code>kubectl delete deployment</code></dt>
+                  <dd class="text-gray-300">Elimina el Deployment y los Pods que administra; puede interrumpir el servicio
+                    si no existen otras réplicas o controladores.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-pink-200"><code>kubectl delete -f</code></dt>
+                  <dd class="text-gray-300">Elimina los recursos declarados en el archivo indicado. Revisa cuidadosamente
+                    el archivo y el namespace antes de ejecutar.</dd>
+                </div>
+                <div class="text-left">
+                  <dt class="text-pink-200"><code>kubectl delete namespace dev</code></dt>
+                  <dd class="text-gray-300">Elimina el namespace y los recursos que contiene. Es una operación
+                    destructiva; no la uses como limpieza rutinaria sin autorización y revisión.</dd>
+                </div>
+              </dl>
+            </article>
+            <article class="panel p-5 border-blue-800">
+              <h3 class="text-lg text-blue-300 font-semibold mb-3">J. Flujo diario recomendado para una API</h3>
+              <p class="text-gray-400 text-sm mb-4">Secuencia sugerida para revisar el contexto, aplicar cambios,
+                comprobar el rollout y diagnosticar errores.</p>
+              <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>
+                # 1. Confirmar destino
+                kubectl config current-context
+                kubectl get nodes
 
-# En otra terminal, probar endpoints
-curl -i http://localhost:8080/health
-curl -i http://localhost:8080/api/users
+                # 2. Localizar los recursos de la API
+                kubectl get deployments,pods,services -n dev
 
-# Petición POST con JSON válido
-curl -X POST http://localhost:8080/api/users \
-  -H "Content-Type: application/json" \
-  -d '"name":"Hernan"'</code></pre><dl class="mt-4 space-y-3 text-sm text-left"><div><dt class="text-cyan-200"><code>kubectl port-forward service/backend-service 8080:80</code></dt><dd class="text-gray-300">Abre un túnel temporal desde el puerto local 8080 al puerto 80 del Service. El formato es <code>PUERTO_LOCAL:PUERTO_REMOTO</code>; el Service debe existir en el namespace indicado.</dd></div><div><dt class="text-cyan-200"><code>kubectl port-forward pod/...</code></dt><dd class="text-gray-300">Envía tráfico directamente a un Pod, útil para aislar una prueba del Service o Ingress.</dd></div><div><dt class="text-cyan-200"><code>curl -i</code></dt><dd class="text-gray-300">Hace una petición HTTP y muestra también los encabezados de respuesta, incluido el código HTTP.</dd></div><div><dt class="text-cyan-200"><code>curl -X POST ... -H ... -d ...</code></dt><dd class="text-gray-300">Envía una petición POST con el encabezado que declara JSON y un cuerpo JSON válido. Ajusta ruta, autenticación y estructura según la API real.</dd></div></dl><p class="text-sm text-yellow-200 mt-4">Mantén abierta la terminal donde corre <code>port-forward</code> mientras pruebas desde otra terminal. Al pulsar <code>Ctrl+C</code>, el túnel se cierra.</p></article>
-<article class="panel p-5"><h3 class="text-lg text-cyan-300 font-semibold mb-3">H. Namespaces, ConfigMaps y Secrets</h3><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre">kubectl create namespace dev
-kubectl get pods -n dev
-kubectl create configmap backend-config --from-literal=LOG_LEVEL=DEBUG -n dev
-kubectl describe configmap backend-config -n dev
-kubectl create secret generic backend-secret --from-literal=API_KEY='&lt;your-api-key&gt;' -n dev
-kubectl describe secret backend-secret -n dev
-kubectl get configmaps,secrets -n dev</code></pre><dl class="mt-4 space-y-3 text-sm text-left"><div><dt class="text-cyan-200"><code>kubectl create namespace dev</code></dt><dd class="text-gray-300">Crea un namespace para agrupar recursos. Si ya existe, el comando puede informar que el recurso ya existe.</dd></div><div><dt class="text-cyan-200"><code>kubectl create configmap ... --from-literal</code></dt><dd class="text-gray-300">Crea un ConfigMap con pares clave/valor no confidenciales, por ejemplo el nivel de logs. La aplicación debe referenciarlo como variable de entorno o volumen para utilizarlo.</dd></div><div><dt class="text-cyan-200"><code>kubectl create secret generic ...</code></dt><dd class="text-gray-300">Crea un Secret para datos sensibles. El texto de ejemplo es un marcador, no una credencial real. Los argumentos pueden quedar registrados en el historial del shell; para secretos reales prefiere el mecanismo aprobado por tu organización.</dd></div><div><dt class="text-cyan-200"><code>kubectl describe configmap/secret</code></dt><dd class="text-gray-300">Muestra metadatos y detalles del recurso. Aun así, evita exponer datos sensibles en capturas, logs o sesiones compartidas.</dd></div></dl><p class="text-sm text-red-200 mt-4">Seguridad: Base64 no es cifrado. Restringe el acceso con RBAC, habilita cifrado en reposo cuando corresponda y no guardes credenciales reales en Git.</p></article>
-<article class="panel p-5"><h3 class="text-lg text-pink-300 font-semibold mb-3">I. Ayuda, validación y limpieza</h3><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre">kubectl api-resources
-kubectl explain deployment
-kubectl explain deployment.spec
-kubectl apply --dry-run=client -f deployment.yaml
-kubectl diff -f ./k8s/ -n dev
-kubectl delete pod &lt;pod-name&gt; -n dev
-kubectl delete deployment backend -n dev
-kubectl delete -f deployment.yaml -n dev
-kubectl delete namespace dev</code></pre><dl class="mt-4 space-y-3 text-sm text-left"><div><dt class="text-pink-200"><code>kubectl api-resources</code></dt><dd class="text-gray-300">Lista los tipos de recursos que la API de este clúster reconoce, incluidos sus nombres abreviados y si son namespaced.</dd></div><div><dt class="text-pink-200"><code>kubectl explain deployment</code></dt><dd class="text-gray-300">Muestra la documentación de campos de un recurso. Añade rutas como <code>deployment.spec</code> para explorar sus propiedades.</dd></div><div><dt class="text-pink-200"><code>--dry-run=client</code></dt><dd class="text-gray-300">Valida y procesa el manifiesto localmente sin crear ni modificar recursos en el clúster. No sustituye todas las validaciones del servidor.</dd></div><div><dt class="text-pink-200"><code>kubectl delete pod</code></dt><dd class="text-gray-300">Borra un Pod concreto. Si pertenece a un Deployment, ReplicaSet u otro controlador, normalmente se creará un reemplazo para mantener el estado deseado.</dd></div><div><dt class="text-pink-200"><code>kubectl delete deployment</code></dt><dd class="text-gray-300">Elimina el Deployment y los Pods que administra; puede interrumpir el servicio si no existen otras réplicas o controladores.</dd></div><div><dt class="text-pink-200"><code>kubectl delete -f</code></dt><dd class="text-gray-300">Elimina los recursos declarados en el archivo indicado. Revisa cuidadosamente el archivo y el namespace antes de ejecutar.</dd></div><div><dt class="text-pink-200"><code>kubectl delete namespace dev</code></dt><dd class="text-gray-300">Elimina el namespace y los recursos que contiene. Es una operación destructiva; no la uses como limpieza rutinaria sin autorización y revisión.</dd></div></dl></article>
-<article class="panel p-5 border-blue-800"><h3 class="text-lg text-blue-300 font-semibold mb-3">J. Flujo diario recomendado para una API</h3><p class="text-gray-400 text-sm mb-4">Secuencia sugerida para revisar el contexto, aplicar cambios, comprobar el rollout y diagnosticar errores.</p><pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
-  <code class="block text-left whitespace-pre"># 1. Confirmar destino
-kubectl config current-context
-kubectl get nodes
+                # 3. Revisar cambios antes de aplicarlos
+                kubectl diff -f ./k8s/ -n dev
 
-# 2. Localizar los recursos de la API
-kubectl get deployments,pods,services -n dev
+                # 4. Aplicar los manifiestos
+                kubectl apply -f ./k8s/ -n dev
 
-# 3. Revisar cambios antes de aplicarlos
-kubectl diff -f ./k8s/ -n dev
+                # 5. Esperar y comprobar el estado
+                kubectl rollout status deployment/backend -n dev
+                kubectl get pods -o wide -n dev
 
-# 4. Aplicar los manifiestos
-kubectl apply -f ./k8s/ -n dev
+                # 6. Si falla, revisar detalles y logs
+                kubectl describe pod &lt;pod-name&gt; -n dev
+                kubectl logs &lt;pod-name&gt; -n dev --tail=100
 
-# 5. Esperar y comprobar el estado
-kubectl rollout status deployment/backend -n dev
-kubectl get pods -o wide -n dev
+                # 7. Probar la API mediante un túnel temporal
+                kubectl port-forward service/backend-service 8080:80 -n dev
+                # En otra terminal:
+                curl -i http://localhost:8080/health
 
-# 6. Si falla, revisar detalles y logs
-kubectl describe pod &lt;pod-name&gt; -n dev
-kubectl logs &lt;pod-name&gt; -n dev --tail=100
+                # 8. Si procede, revisar historial y revertir
+                kubectl rollout history deployment/backend -n dev
+                kubectl rollout undo deployment/backend -n dev</code></pre>
+              <p class="text-sm text-gray-300 mt-4">Resumen de flags frecuentes: <code>-n</code> selecciona namespace;
+                <code>-o wide</code> agrega columnas; <code>-o yaml</code> imprime YAML; <code>-f</code> indica
+                archivo/directorio; <code>-l</code> filtra por etiquetas; <code>-w</code> observa cambios; <code>-c</code>
+                elige contenedor; <code>--previous</code> solicita logs de la instancia anterior.</p>
+              <p class="text-sm text-yellow-200 mt-3">Sustituye <code>dev</code>, <code>backend</code>,
+                <code>backend-service</code> y los nombres de contenedor por los reales. En entornos compartidos, respeta
+                permisos y procesos de cambio antes de actualizar o eliminar recursos.</p>
+            </article>
+          </div>
+        </section>
+        <section class="mb-14" id="troubleshooting">
+          <h2 class="text-2xl md:text-3xl font-bold text-orange-300 mb-3">06 · Troubleshooting rápido</h2>
+          <div class="panel overflow-x-auto">
+            <table class="w-full text-sm text-left">
+              <thead class="bg-[#111827]">
+                <tr>
+                  <th class="p-4">Estado</th>
+                  <th class="p-4">Qué revisar</th>
+                  <th class="p-4">Primeros pasos</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t border-gray-700">
+                  <td class="p-4 text-orange-300">CrashLoopBackOff</td>
+                  <td class="p-4">El contenedor falla repetidamente.</td>
+                  <td class="p-4"><code>logs --previous</code>, <code>describe pod</code>, probes y configuración.</td>
+                </tr>
+                <tr class="border-t border-gray-700">
+                  <td class="p-4 text-orange-300">ImagePullBackOff</td>
+                  <td class="p-4">No puede descargar la imagen.</td>
+                  <td class="p-4">Nombre/tag, registry y credenciales.</td>
+                </tr>
+                <tr class="border-t border-gray-700">
+                  <td class="p-4 text-orange-300">Pending</td>
+                  <td class="p-4">Pod sin asignación o preparación.</td>
+                  <td class="p-4">Eventos, recursos, afinidad, taints y PVC.</td>
+                </tr>
+                <tr class="border-t border-gray-700">
+                  <td class="p-4 text-orange-300">OOMKilled</td>
+                  <td class="p-4">Consumo de memoria excedido.</td>
+                  <td class="p-4">Consumo real, límites y requests.</td>
+                </tr>
+                <tr class="border-t border-gray-700">
+                  <td class="p-4 text-orange-300">CreateContainerConfigError</td>
+                  <td class="p-4">Configuración del contenedor inválida.</td>
+                  <td class="p-4">Claves y referencias a ConfigMaps/Secrets.</td>
+                </tr>
+                <tr class="border-t border-gray-700">
+                  <td class="p-4 text-orange-300">Service sin tráfico</td>
+                  <td class="p-4">No encuentra endpoints saludables.</td>
+                  <td class="p-4">Selector, labels y readinessProbe.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+        <section class="mb-14" id="buenas-practicas">
+          <h2 class="text-2xl md:text-3xl font-bold text-green-300 mb-5">07 · Buenas prácticas para producción</h2>
+          <div class="grid md:grid-cols-2 gap-5">
+            <article class="panel p-5">
+              <h3 class="font-semibold text-green-200 mb-3">Operación y resiliencia</h3>
+              <ul class="space-y-2 text-sm text-gray-300 text-left">
+                <li>✓ Usa Deployments para servicios stateless.</li>
+                <li>✓ Define requests, limits y probes apropiadas.</li>
+                <li>✓ Usa readinessProbe para controlar cuándo recibir tráfico.</li>
+                <li>✓ Observa logs, métricas, eventos y alertas.</li>
+                <li>✓ Planifica réplicas y estrategia de rollout.</li>
+              </ul>
+            </article>
+            <article class="panel p-5">
+              <h3 class="font-semibold text-green-200 mb-3">Seguridad y cambios</h3>
+              <ul class="space-y-2 text-sm text-gray-300 text-left">
+                <li>✓ Aplica RBAC con privilegios mínimos.</li>
+                <li>✓ No guardes credenciales reales en Git.</li>
+                <li>✓ Base64 no es cifrado.</li>
+                <li>✓ Usa imágenes versionadas y escaneadas.</li>
+                <li>✓ Revisa diff, contexto y namespace antes de aplicar o borrar.</li>
+              </ul>
+            </article>
+          </div>
+        </section>
+        <section class="mb-14" id="tutorial-kong">
+          <h2 class="mb-4 text-2xl font-bold text-cyan-300">08 · Tutorial práctico completo: Kong + Kubernetes</h2>
+          <p class="mb-4 text-gray-300 text-left">Esta parte reúne los manifiestos YAML de ejemplo en un único manual. Los archivos
+            se muestran completos para copiarlos a tu repositorio; aplica primero el namespace, después Deployment y
+            Service, luego Ingress y finalmente el plugin opcional.</p>
+          <div class="rounded-lg border border-amber-700/60 bg-amber-950/20 p-4 text-sm text-amber-100">
+            <strong>Importante:</strong> si tu empresa ya tiene Kong instalado y administrado por plataforma, no
+            reinstales Kong. Usa la clase Ingress y los nombres reales de los servicios existentes. Los nombres de
+            recursos pueden variar según la versión del chart.</div>
+        </section>
+        <section class="mb-14" id="instalacion-kong">
+          <h2 class="text-2xl md:text-3xl font-bold mb-4">09 · Instalar Kong para un laboratorio</h2>
+          <div class="panel p-5 mb-5">
+            <h3 class="text-xl text-cyan-300 mb-2">Paso 1. Instalar el chart oficial</h3>
+            <p class="text-gray-400 text-sm mb-3">Este método instala Kong Gateway y Kong Ingress Controller usando el
+              chart wrapper <code>kong/ingress</code>. La configuración por defecto puede variar entre versiones del
+              chart; fija una versión aprobada en entornos compartidos.</p>
+            <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>helm repo add kong https://charts.konghq.com
+  helm repo update
+  helm upgrade --install kong kong/ingress \\
+    --namespace kong --create-namespace
 
-# 7. Probar la API mediante un túnel temporal
-kubectl port-forward service/backend-service 8080:80 -n dev
-# En otra terminal:
-curl -i http://localhost:8080/health
+  # Espera a que estén listos los Pods
+  kubectl get pods -n kong -w</code></pre>
+            <p class="text-xs text-gray-500 mt-3">Si la empresa ya administra Kong, no ejecutes este paso: solicita el
+              nombre de la clase Ingress, el namespace de Kong y el endpoint de entrada. Para personalizar el chart, crea
+              un <code>values.yaml</code> revisado por el equipo de plataforma.</p>
+          </div>
+          <div class="panel p-5">
+            <h3 class="text-xl text-cyan-300 mb-2">Paso 2. Inspeccionar la instalación</h3>
+            <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>helm list -n kong
+  kubectl get deployments,services -n kong
+  kubectl get ingressclass
+  kubectl get pods -n kong -o wide
+  kubectl describe ingressclass kong</code></pre>
+            <p class="text-sm text-gray-400 mt-3">Busca la clase <code>kong</code> y el Service de proxy. Si no existe la
+              clase, no continúes suponiendo que el controlador la atenderá: revisa los valores de instalación y la
+              versión de KIC con el administrador.</p>
+          </div>
+        </section>
+        <section class="mb-14" id="manifiestos-kong">
+          <h2 class="text-2xl md:text-3xl font-bold mb-3">10 · Crear la API y publicar una ruta</h2>
+          <p class="text-gray-400 mb-6 text-left">Guarda los siguientes archivos en una carpeta <code>k8s/</code>. El backend de
+            demostración usa <code>hashicorp/http-echo</code> para devolver texto sin necesidad de crear una aplicación
+            Node.js. En un proyecto real, reemplaza la imagen y el puerto por los de tu API.</p>
+          <div class="panel p-5 mb-5">
+            <h3 class="text-lg text-cyan-300 font-semibold mb-2">Archivo 1 — <code>00-namespace.yaml</code></h3>
+            <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>apiVersion: v1
+  kind: Namespace
+  metadata:
+    name: demo
+    labels:
+      app.kubernetes.io/part-of: kong-demo</code></pre>
+            <p class="text-sm text-gray-400 mt-3">Crea un espacio lógico para aislar los recursos de este tutorial. El
+              controlador Kong puede estar en el namespace <code>kong</code>, mientras la aplicación vive en
+              <code>demo</code>.</p>
+          </div>
+          <div class="panel p-5 mb-5">
+            <h3 class="text-lg text-cyan-300 font-semibold mb-2">Archivo 2 — <code>10-deployment.yaml</code></h3>
+            <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>apiVersion: apps/v1
+  kind: Deployment
+  metadata:
+    name: echo-api
+    namespace: demo
+    labels:
+      app: echo-api
+  spec:
+    replicas: 2
+    selector:
+      matchLabels:
+        app: echo-api
+    template:
+      metadata:
+        labels:
+          app: echo-api
+      spec:
+        containers:
+          - name: echo
+            image: hashicorp/http-echo:1.0.0
+            args:
+              - "-listen=:5678"
+              - "-text=Hola desde el backend detrás de Kong"
+            ports:
+              - name: http
+                containerPort: 5678
+            readinessProbe:
+              tcpSocket:
+                port: 5678
+              initialDelaySeconds: 2
+              periodSeconds: 5
+            livenessProbe:
+              tcpSocket:
+                port: 5678
+              initialDelaySeconds: 5
+              periodSeconds: 10
+            resources:
+              requests:
+                cpu: 50m
+                memory: 32Mi
+              limits:
+                cpu: 250m
+                memory: 64Mi</code></pre>
+            <p class="text-sm text-gray-400 mt-3">Deployment mantiene dos réplicas. Las probes TCP verifican que el puerto
+              acepte conexiones; para una API real, prefiere endpoints de salud HTTP si la aplicación los ofrece. Los
+              recursos son valores ilustrativos.</p>
+          </div>
+          <div class="panel p-5 mb-5">
+            <h3 class="text-lg text-cyan-300 font-semibold mb-2">Archivo 3 — <code>20-service.yaml</code></h3>
+            <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>apiVersion: v1
+  kind: Service
+  metadata:
+    name: echo-api
+    namespace: demo
+  spec:
+    type: ClusterIP
+    selector:
+      app: echo-api
+    ports:
+      - name: http
+        port: 80
+        targetPort: http</code></pre>
+            <p class="text-sm text-gray-400 mt-3">El Service expone el puerto 80 dentro del clúster y lo dirige al puerto
+              nombrado <code>http</code> del contenedor (5678). Kong enruta al Service, no directamente a una IP de Pod.
+            </p>
+          </div>
+          <div class="panel p-5 mb-5">
+            <h3 class="text-lg text-cyan-300 font-semibold mb-2">Archivo 4 — <code>30-ingress.yaml</code></h3>
+            <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: echo-api
+    namespace: demo
+  spec:
+    ingressClassName: kong
+    rules:
+      - host: echo.local
+        http:
+          paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: echo-api
+                  port:
+                    number: 80</code></pre>
+            <p class="text-sm text-gray-400 mt-3">Declara la regla de host y ruta. KIC detecta el Ingress y configura Kong
+              Gateway. El host <code>echo.local</code> es de prueba; no crea DNS público ni un balanceador por sí solo.
+            </p>
+          </div>
+          <div class="panel p-5">
+            <h3 class="text-lg text-cyan-300 font-semibold mb-2">Aplicar y comprobar los manifiestos</h3>
+            <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>kubectl apply -f k8s/00-namespace.yaml
+  kubectl apply -f k8s/10-deployment.yaml
+  kubectl apply -f k8s/20-service.yaml
+  kubectl apply -f k8s/30-ingress.yaml
 
-# 8. Si procede, revisar historial y revertir
-kubectl rollout history deployment/backend -n dev
-kubectl rollout undo deployment/backend -n dev</code></pre><p class="text-sm text-gray-300 mt-4">Resumen de flags frecuentes: <code>-n</code> selecciona namespace; <code>-o wide</code> agrega columnas; <code>-o yaml</code> imprime YAML; <code>-f</code> indica archivo/directorio; <code>-l</code> filtra por etiquetas; <code>-w</code> observa cambios; <code>-c</code> elige contenedor; <code>--previous</code> solicita logs de la instancia anterior.</p><p class="text-sm text-yellow-200 mt-3">Sustituye <code>dev</code>, <code>backend</code>, <code>backend-service</code> y los nombres de contenedor por los reales. En entornos compartidos, respeta permisos y procesos de cambio antes de actualizar o eliminar recursos.</p></article>
-</div></section>
+  kubectl rollout status deployment/echo-api -n demo
+  kubectl get pods,svc,ingress -n demo
+  kubectl describe ingress echo-api -n demo</code></pre>
+            <p class="text-sm text-gray-400 mt-3">También puedes ejecutar <code>kubectl apply -f k8s/</code> si todos los
+              archivos están dentro de esa carpeta. Separa manifiestos por responsabilidad para que sea más fácil
+              revisarlos y versionarlos.</p>
+          </div>
+        </section>
+        <section class="mb-14" id="plugins-kong">
+          <h2 class="text-2xl md:text-3xl font-bold mb-3">11 · Añadir un plugin de Kong: rate limiting</h2>
+          <p class="text-gray-400 mb-5">El siguiente ejemplo limita a cinco solicitudes por minuto en cada instancia de
+            Kong cuando se utiliza la política local. Es para aprender, no una cuota global exacta en un despliegue con
+            varias réplicas de Gateway.</p>
+          <div class="panel p-5">
+            <h3 class="text-lg text-pink-300 font-semibold mb-2">Archivo 5 — <code>40-kong-plugin.yaml</code></h3>
+            <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>apiVersion: configuration.konghq.com/v1
+  kind: KongPlugin
+  metadata:
+    name: echo-rate-limit
+    namespace: demo
+    annotations:
+      kubernetes.io/ingress.class: kong
+  plugin: rate-limiting
+  config:
+    minute: 5
+    policy: local</code></pre>
+            <p class="text-sm text-gray-400 mt-3">El recurso KongPlugin define el plugin y sus parámetros. La anotación
+              siguiente vincula el plugin al Ingress. Comprueba que la versión instalada de KIC soporte esta API y este
+              tipo de recurso.</p>
+            <h3 class="text-lg text-pink-300 font-semibold mt-6 mb-2">Actualizar <code>30-ingress.yaml</code></h3>
+            <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code>apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+    name: echo-api
+    namespace: demo
+    annotations:
+      konghq.com/plugins: echo-rate-limit
+  spec:
+    ingressClassName: kong
+    rules:
+      - host: echo.local
+        http:
+          paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: echo-api
+                  port:
+                    number: 80</code></pre>
+            <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left mt-4"><code>kubectl apply -f k8s/40-kong-plugin.yaml
+  kubectl apply -f k8s/30-ingress.yaml
+  kubectl get kongplugin -n demo
+  kubectl describe kongplugin echo-rate-limit -n demo</code></pre>
+            <p class="text-xs text-gray-500 mt-3">Para una cuota compartida entre múltiples Pods de Kong, evalúa la
+              política Redis y su configuración segura. No pongas contraseñas reales directamente en el manifiesto.</p>
+          </div>
+        </section>
+        <section class="mb-14" id="pruebas-kong">
+          <h2 class="text-2xl md:text-3xl font-bold mb-4">12 · Probar el recorrido de la petición</h2>
+          <div class="panel p-5 mb-5">
+            <h3 class="text-lg text-cyan-300 mb-2">Opción A — Port-forward al Service proxy de Kong</h3>
+            <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code># Terminal 1: consulta el nombre real del Service de Kong
+  kubectl get svc -n kong
 
-<section id="troubleshooting" class="mb-14"><h2 class="text-2xl md:text-3xl font-bold text-orange-300 mb-3">06 · Troubleshooting rápido</h2><div class="panel overflow-x-auto"><table class="w-full text-sm text-left"><thead class="bg-[#111827]"><tr><th class="p-4">Estado</th><th class="p-4">Qué revisar</th><th class="p-4">Primeros pasos</th></tr></thead><tbody>
-<tr class="border-t border-gray-700"><td class="p-4 text-orange-300">CrashLoopBackOff</td><td class="p-4">El contenedor falla repetidamente.</td><td class="p-4"><code>logs --previous</code>, <code>describe pod</code>, probes y configuración.</td></tr>
-<tr class="border-t border-gray-700"><td class="p-4 text-orange-300">ImagePullBackOff</td><td class="p-4">No puede descargar la imagen.</td><td class="p-4">Nombre/tag, registry y credenciales.</td></tr>
-<tr class="border-t border-gray-700"><td class="p-4 text-orange-300">Pending</td><td class="p-4">Pod sin asignación o preparación.</td><td class="p-4">Eventos, recursos, afinidad, taints y PVC.</td></tr>
-<tr class="border-t border-gray-700"><td class="p-4 text-orange-300">OOMKilled</td><td class="p-4">Consumo de memoria excedido.</td><td class="p-4">Consumo real, límites y requests.</td></tr>
-<tr class="border-t border-gray-700"><td class="p-4 text-orange-300">CreateContainerConfigError</td><td class="p-4">Configuración del contenedor inválida.</td><td class="p-4">Claves y referencias a ConfigMaps/Secrets.</td></tr>
-<tr class="border-t border-gray-700"><td class="p-4 text-orange-300">Service sin tráfico</td><td class="p-4">No encuentra endpoints saludables.</td><td class="p-4">Selector, labels y readinessProbe.</td></tr>
-</tbody></table></div></section>
+  # Si se llama kong-gateway-proxy, abre el túnel
+  kubectl port-forward -n kong svc/kong-gateway-proxy 8000:80</code></pre>
+            <p class="text-sm text-gray-400 mt-3">Deja ese comando ejecutándose. Si el Service tiene otro nombre o no
+              expone el puerto 80, adapta el comando según <code>kubectl get svc -n kong</code>.</p>
+          </div>
+          <div class="panel p-5">
+            <h3 class="text-lg text-cyan-300 mb-2">Opción B — Enviar una petición con el host de la ruta</h3>
+            <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code># En otra terminal, especifica el host que espera el Ingress
+  curl -i -H 'Host: echo.local' http://127.0.0.1:8000/
 
-<section id="buenas-practicas" class="mb-14"><h2 class="text-2xl md:text-3xl font-bold text-green-300 mb-5">07 · Buenas prácticas para producción</h2><div class="grid md:grid-cols-2 gap-5 text-left">
-<article class="panel p-5"><h3 class="font-semibold text-green-200 mb-3">Operación y resiliencia</h3><ul class="space-y-2 text-sm text-gray-300"><li>✓ Usa Deployments para servicios stateless.</li><li>✓ Define requests, limits y probes apropiadas.</li><li>✓ Usa readinessProbe para controlar cuándo recibir tráfico.</li><li>✓ Observa logs, métricas, eventos y alertas.</li><li>✓ Planifica réplicas y estrategia de rollout.</li></ul></article>
-<article class="panel p-5"><h3 class="font-semibold text-green-200 mb-3">Seguridad y cambios</h3><ul class="space-y-2 text-sm text-gray-300"><li>✓ Aplica RBAC con privilegios mínimos.</li><li>✓ No guardes credenciales reales en Git.</li><li>✓ Base64 no es cifrado.</li><li>✓ Usa imágenes versionadas y escaneadas.</li><li>✓ Revisa diff, contexto y namespace antes de aplicar o borrar.</li></ul></article></div></section>
-<footer class="border-t border-gray-800 pt-6 text-sm text-gray-500">Guía de referencia para aprendizaje y trabajo diario. Adapta y valida los ejemplos antes de usarlos en producción.</footer>
+  # Repite varias solicitudes para observar el rate limit
+  for i in $(seq 1 7); do
+    curl -s -o /dev/null -w '%http_code\n' \\
+      -H 'Host: echo.local' http://127.0.0.1:8000/
+  done</code></pre>
+            <p class="text-sm text-gray-400 mt-3">La respuesta esperada inicial es HTTP 200 con el texto del backend. Con
+              el plugin aplicado y el límite local alcanzado, algunas solicitudes posteriores deben recibir HTTP 429. Si
+              no ocurre, revisa los logs de KIC y Kong y confirma que el plugin esté vinculado al Ingress correcto.</p>
+          </div>
+        </section>
+        <section class="mb-14" id="tls-kong">
+          <h2 class="text-2xl md:text-3xl font-bold mb-4">13 · HTTPS/TLS: qué falta para producción</h2>
+          <div class="panel p-5">
+            <p class="text-gray-300 mb-4">El tutorial anterior usa HTTP para que puedas probar la ruta localmente. Para
+              HTTPS, necesitas un certificado y una clave válidos (o un Secret generado por cert-manager) y debes definir
+              dónde termina TLS: en el WAF/balanceador externo, en Kong Gateway, o en ambos con TLS hacia el backend según
+              la política de la empresa.</p>
+            <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left"><code># Ejemplo: crear un Secret TLS a partir de archivos reales
+  # No subas tls.key a Git ni compartas la clave privada.
+  kubectl create secret tls echo-tls \\
+    --cert=./tls.crt \\
+    --key=./tls.key \\
+    -n demo</code></pre>
+            <p class="text-sm text-gray-400 mt-4">Después, agrega una sección <code>spec.tls</code> al Ingress con el host
+              y el nombre del Secret, y confirma que el listener de Kong y la exposición externa soporten HTTPS. El
+              certificado del ejemplo debe corresponder al dominio que utilices.</p>
+            <pre class="bg-[#0d1117] p-4 rounded text-green-300 text-xs overflow-x-auto text-left mt-3"><code>spec:
+    ingressClassName: kong
+    tls:
+      - hosts:
+          - api.ejemplo.com
+        secretName: echo-tls
+    rules:
+      - host: api.ejemplo.com
+        http:
+          paths:
+            - path: /
+              pathType: Prefix
+              backend:
+                service:
+                  name: echo-api
+                  port:
+                    number: 80</code></pre>
+            <p class="text-xs text-gray-500 mt-3">El fragmento TLS se integra en el mismo Ingress completo; no lo apliques
+              como un manifiesto separado que contenga solo <code>spec</code>.</p>
+          </div>
+        </section>
+        <section class="mb-14" id="flujo-kong">
+          <h2 class="text-2xl md:text-3xl font-bold mb-4">14 · Flujo de trabajo recomendado</h2>
+          <div class="panel p-5">
+            <ol class="list-decimal pl-5 space-y-2 text-gray-300">
+              <li>Confirmar contexto y permisos de Kubernetes.</li>
+              <li>Confirmar con plataforma que Kong Gateway y KIC están instalados y cuál es la IngressClass correcta.
+              </li>
+              <li>Versionar Deployment, Service, Ingress y KongPlugin en Git.</li>
+              <li>Revisar los YAML con el equipo y ejecutar <code>kubectl diff -f k8s/</code>.</li>
+              <li>Aplicar los manifiestos mediante el pipeline aprobado.</li>
+              <li>Verificar rollout, endpoints, rutas, plugins y logs.</li>
+              <li>En producción, configurar DNS, TLS, WAF y balanceador según la arquitectura corporativa, no con valores
+                de laboratorio.</li>
+            </ol>
+          </div>
+        </section>
+        <section class="mb-8" id="referencias-kong">
+          <h2 class="text-xl font-bold text-green-300 mb-3">Referencias oficiales</h2>
+          <ul class="list-disc pl-5 space-y-2 text-sm text-gray-300">
+            <li><a href="https://developer.konghq.com/kubernetes-ingress-controller/install/" rel="noreferrer"
+                target="_blank">Instalación de Kong Ingress Controller</a></li>
+            <li><a href="https://docs.konghq.com/kubernetes-ingress-controller/latest/plugins/rate-limiting/"
+                rel="noreferrer" target="_blank">Rate limiting con KongPlugin</a></li>
+            <li><a href="https://docs.konghq.com/kubernetes-ingress-controller/latest/reference/annotations/"
+                rel="noreferrer" target="_blank">Anotaciones de Kong Ingress Controller</a></li>
+          </ul>
+          <p class="text-xs text-gray-500 mt-4">Guía didáctica. Los nombres de Services, opciones Helm y recursos
+            soportados pueden cambiar con la versión de Kong/KIC. Para producción, usa las versiones y valores aprobados
+            por tu equipo de plataforma.</p>
+        </section>
+        <footer class="border-t border-gray-800 pt-6 text-sm text-gray-500">Manual integrado de Kubernetes y Kong Gateway
+          · Arquitectura, kubectl, manifiestos YAML, pruebas y TLS. Valida versiones, permisos y políticas internas antes
+          de usar en producción.</footer>
+      </main>
+    </div> 
 
-
-
-  </div>
 </div>
