@@ -4,7 +4,6 @@
 
   <div class="bg-[#161b22] px-6 py-3 border-b border-gray-700 flex items-center gap-2">
 
-```
 <div class="w-3 h-3 bg-red-500 rounded-full"></div>
 <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
 <div class="w-3 h-3 bg-green-500 rounded-full"></div>
@@ -12,13 +11,11 @@
 <span class="ml-4 text-sm text-gray-400">
   argocd-gitops.component.html
 </span>
-```
 
   </div>
 
   <div class="p-10 max-w-7xl mx-auto">
 
-```
 <!-- HEADER -->
 
 <section class="mb-16">
@@ -54,7 +51,6 @@
       desplegar, desde qué repositorio y en qué cluster
       y namespace de Kubernetes.
     </p>
-```
 
 <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
 <code class="block whitespace-pre">
@@ -87,7 +83,6 @@ spec:
 </code>
 </pre>
 
-```
     <span class="text-xs text-gray-500">
       Use: definir una aplicación GitOps
     </span>
@@ -107,7 +102,6 @@ spec:
       Git actúa como fuente de verdad. Contiene los manifiestos
       Kubernetes que representan el estado deseado.
     </p>
-```
 
 <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
 <code class="block whitespace-pre">
@@ -126,7 +120,6 @@ gitops/
 </code>
 </pre>
 
-```
     <span class="text-xs text-gray-500">
       Use: fuente de verdad del sistema
     </span>
@@ -146,7 +139,6 @@ gitops/
       Sincroniza el estado definido en Git con el estado real
       existente en Kubernetes.
     </p>
-```
 
 <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
 <code class="block whitespace-pre">
@@ -168,7 +160,6 @@ argocd app get backend-api
 </code>
 </pre>
 
-```
     <span class="text-xs text-gray-500">
       Use: desplegar cambios
     </span>
@@ -188,7 +179,6 @@ argocd app get backend-api
       Permite que Argo CD detecte cambios en Git y sincronice
       automáticamente Kubernetes.
     </p>
-```
 
 <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
 <code class="block whitespace-pre">
@@ -202,7 +192,6 @@ syncPolicy:
 </code>
 </pre>
 
-```
     <span class="text-xs text-gray-500">
       Use: Continuous Deployment
     </span>
@@ -222,7 +211,6 @@ syncPolicy:
       Permite agrupar aplicaciones y controlar qué repositorios,
       clusters y namespaces pueden utilizar.
     </p>
-```
 
 <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
 <code class="block whitespace-pre">
@@ -252,7 +240,6 @@ spec:
 </code>
 </pre>
 
-```
     <span class="text-xs text-gray-500">
       Use: gobierno y control de aplicaciones
     </span>
@@ -272,7 +259,6 @@ spec:
       Argo CD puede conectarse a repositorios Git privados
       para obtener manifiestos y configuraciones.
     </p>
-```
 
 <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
 <code class="block whitespace-pre">
@@ -283,7 +269,6 @@ argocd repo add \
 </code>
 </pre>
 
-```
     <span class="text-xs text-gray-500">
       Use: integración con Git privado
     </span>
@@ -303,7 +288,6 @@ argocd repo add \
       Argo CD puede desplegar aplicaciones Kubernetes
       utilizando Helm Charts.
     </p>
-```
 
 <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
 <code class="block whitespace-pre">
@@ -324,7 +308,6 @@ spec:
 </code>
 </pre>
 
-```
     <span class="text-xs text-gray-500">
       Use: parametrización de despliegues
     </span>
@@ -344,7 +327,6 @@ spec:
       Permite administrar diferentes ambientes utilizando
       overlays sobre una configuración base.
     </p>
-```
 
 <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
 <code class="block whitespace-pre">
@@ -367,7 +349,6 @@ apps/
 </code>
 </pre>
 
-```
     <span class="text-xs text-gray-500">
       Use: múltiples ambientes
     </span>
@@ -387,7 +368,6 @@ apps/
       Permite regresar una aplicación a una versión anterior
       registrada en el historial de despliegues.
     </p>
-```
 
 <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
 <code class="block whitespace-pre">
@@ -405,7 +385,6 @@ argocd app get backend-api
 </code>
 </pre>
 
-```
     <span class="text-xs text-gray-500">
       Use: recuperación ante despliegues fallidos
     </span>
@@ -425,7 +404,6 @@ argocd app get backend-api
       Controla qué usuarios y equipos pueden administrar
       aplicaciones dentro de Argo CD.
     </p>
-```
 
 <pre class="bg-[#0d1117] p-4 rounded text-green-400 text-xs overflow-x-auto text-left">
 <code class="block whitespace-pre">
@@ -444,7 +422,6 @@ g, developer, role:developer
 </code>
 </pre>
 
-```
     <span class="text-xs text-gray-500">
       Use: seguridad y gobierno
     </span>
@@ -510,7 +487,6 @@ g, developer, role:developer
   </h2>
 
   <div class="bg-[#161b22] border border-gray-700 rounded-xl p-6">
-```
 
 <pre class="text-green-400 text-sm overflow-x-auto text-left">
 <code class="block whitespace-pre">
@@ -556,7 +532,6 @@ g, developer, role:developer
 </code>
 </pre>
 
-```
   </div>
 
 </section>
@@ -619,7 +594,6 @@ g, developer, role:developer
   </div>
 
 </section>
-```
 
   </div>
 
