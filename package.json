@@ -1,5 +1,5 @@
 {
-  "name": "my-app",
+  "name": "my-profile",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -8,7 +8,7 @@
     "build:prod": "ng build --configuration=production --base-href=/myProfile/",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:myApp": "node dist/myApp/server/server.mjs"
+    "serve:ssr:myProfile": "node dist/myProfile/server/server.mjs"
   },
   "private": true,
   "packageManager": "npm@11.16.0",
