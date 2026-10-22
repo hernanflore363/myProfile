@@ -7,7 +7,7 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "myApp": {
+    "myProfile": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -65,10 +65,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "myApp:build:production"
+              "buildTarget": "myProfile:build:production"
             },
             "development": {
-              "buildTarget": "myApp:build:development"
+              "buildTarget": "myProfile:build:development"
             }
           },
           "defaultConfiguration": "development"
